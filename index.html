@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>StyleBD</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--surface2:#faf9f6;
+  --ink:#1c1c1c;--ink2:#555;--ink3:#999;
+  --brand:#c8102e;--brand-dk:#a00d24;--brand-lt:#ff4d6d;
+  --accent:#f5a623;--accent2:#2ecc71;
+  --border:#e8e5de;--border2:#d4cfc5;
+  --shadow:0 2px 20px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.14);
+  --r:12px;--r-sm:8px;--r-xs:6px;
+  --nav-h:62px;--cat-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
+input,textarea,select{font-family:inherit}
+img{display:block;max-width:100%}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d0ccc3;border-radius:3px}
+
+/* PAGE LOADER */
+#pageLoader{position:fixed;inset:0;background:#1c1c1c;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .4s}
+#pageLoader .brand{font-family:'Noto Serif Bengali',serif;font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:1px}
+#pageLoader .brand span{color:var(--brand)}
+#pageLoader .bar{width:160px;height:3px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden}
+#pageLoader .bar-fill{height:100%;background:var(--brand);border-radius:2px;animation:loadBar 1.4s ease-in-out infinite}
+@keyframes loadBar{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+
+/* LOADING OVERLAY */
+#loadingOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center}
+.lo-box{background:#fff;border-radius:14px;padding:28px 40px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.lo-spinner{width:38px;height:38px;border:3px solid #f0f0f0;border-top-color:var(--brand);border-radius:50%;animation:loSpin .7s linear infinite;margin:0 auto 12px}
+.lo-text{font-size:.9rem;color:#555}
+@keyframes loSpin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:10000;background:var(--ink);color:#fff;padding:13px 20px;border-radius:var(--r-sm);font-size:.875rem;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg);max-width:300px;animation:toastIn .3s cubic-bezier(.34,1.56,.64,1)}
+.toast.success{background:#1a6b3c}.toast.error{background:#a00d24}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95)}to{opacity:1;transform:none}}
+
+/* ANNOUNCEMENT */
+#announcementBar{background:var(--brand);color:#fff;text-align:center;padding:8px 16px;font-size:.82rem;font-weight:500;position:relative}
+#announcementBar button{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:#fff;opacity:.7;cursor:pointer;font-size:.85rem}
+
+/* MAIN NAV */
+.main-nav{position:sticky;top:0;z-index:500;background:var(--ink);height:var(--nav-h);display:flex;align-items:center;padding:0 24px;gap:16px;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.nav-brand{font-family:'Noto Serif Bengali',serif;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:.5px;cursor:pointer;flex-shrink:0;white-space:nowrap}
+.nav-brand span{color:var(--brand)}
+.nav-search{flex:1;max-width:480px;position:relative}
+.nav-search input{width:100%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.15);color:#fff;padding:9px 16px 9px 40px;border-radius:30px;font-size:.9rem;outline:none;transition:.2s}
+.nav-search input::placeholder{color:rgba(255,255,255,.45)}
+.nav-search input:focus{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.35)}
+.nav-search .search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.5);font-size:.85rem;pointer-events:none}
+.nav-search .search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);padding:2px;font-size:.8rem;display:none}
+.nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+.nav-btn{background:transparent;border:none;color:rgba(255,255,255,.8);width:42px;height:42px;border-radius:50%;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.2s;position:relative}
+.nav-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-btn.cart-btn{background:var(--brand);color:#fff}
+.nav-btn.cart-btn:hover{background:var(--brand-dk)}
+.cart-badge{position:absolute;top:-2px;right:-2px;background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--ink)}
+.mobile-menu-btn{display:none;background:none;border:none;color:rgba(255,255,255,.8);font-size:1.2rem;width:42px;height:42px;align-items:center;justify-content:center}
+
+/* MOBILE DRAWER */
+.mobile-nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;backdrop-filter:blur(2px);animation:fadeIn .2s}
+.mobile-nav-drawer{position:fixed;left:0;top:0;bottom:0;width:290px;background:var(--ink);z-index:601;overflow-y:auto;box-shadow:8px 0 40px rgba(0,0,0,.4);animation:drawerLeft .3s cubic-bezier(.34,1.1,.64,1)}
+@keyframes drawerLeft{from{transform:translateX(-100%)}to{transform:none}}
+.mobile-nav-header{padding:20px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between}
+.mobile-nav-header .brand{font-family:'Noto Serif Bengali',serif;font-size:1.4rem;font-weight:900;color:#fff}
+.mobile-nav-header .brand span{color:var(--brand)}
+.mobile-nav-close{background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.mobile-search-wrap{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.mobile-search-wrap input{width:100%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.15);color:#fff;padding:9px 14px;border-radius:30px;font-size:.9rem;outline:none}
+.mobile-search-wrap input::placeholder{color:rgba(255,255,255,.4)}
+.mobile-cat-list{padding:12px 0}
+.mobile-cat-item{display:flex;align-items:center;gap:12px;padding:12px 20px;color:rgba(255,255,255,.75);font-size:.92rem;font-weight:500;cursor:pointer;transition:.15s}
+.mobile-cat-item:hover,.mobile-cat-item.active{background:rgba(255,255,255,.08);color:#fff}
+.mobile-cat-item.active{background:rgba(200,16,46,.2);color:var(--brand-lt)}
+.mobile-cat-item .emoji{font-size:1.1rem;width:24px;text-align:center}
+.mobile-nav-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:8px}
+.mobile-nav-footer button{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:10px 16px;border-radius:var(--r-sm);font-size:.875rem;display:flex;align-items:center;gap:8px}
+
+/* CATEGORY BAR */
+.cat-bar{background:var(--surface);border-bottom:1.5px solid var(--border);height:var(--cat-h);display:flex;align-items:center;padding:0 24px;gap:0;overflow-x:auto;position:sticky;top:var(--nav-h);z-index:400;scrollbar-width:none}
+.cat-bar::-webkit-scrollbar{display:none}
+.cat-item{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:30px;white-space:nowrap;cursor:pointer;transition:.2s;font-size:.875rem;font-weight:500;color:var(--ink2);flex-shrink:0;border:1.5px solid transparent}
+.cat-item:hover{background:var(--bg);color:var(--ink)}
+.cat-item.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - var(--nav-h) - var(--cat-h))}
+.page.active{display:block}
+
+/* FOOTER */
+.site-footer{background:var(--ink);color:rgba(255,255,255,.7);padding:40px 24px 20px;margin-top:48px}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:28px}
+.footer-brand{font-family:'Noto Serif Bengali',serif;font-size:1.4rem;font-weight:900;color:#fff;margin-bottom:10px}
+.footer-brand span{color:var(--brand)}
+.footer-about{font-size:.85rem;line-height:1.7;margin-bottom:14px}
+.footer-social{display:flex;gap:10px}
+.footer-social a{width:34px;height:34px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;transition:.2s}
+.footer-social a:hover{background:var(--brand)}
+.footer-col h4{color:#fff;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;font-weight:700}
+.footer-links{display:flex;flex-direction:column;gap:8px}
+.footer-links a{font-size:.85rem;color:rgba(255,255,255,.6);transition:.15s;cursor:pointer}
+.footer-links a:hover{color:#fff}
+.footer-contact{display:flex;flex-direction:column;gap:8px;font-size:.85rem}
+.footer-contact span{display:flex;align-items:flex-start;gap:8px}
+.footer-contact i{margin-top:3px;color:var(--brand);width:14px;flex-shrink:0}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:18px;text-align:center;font-size:.8rem;color:rgba(255,255,255,.35)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1c1c1c 0%,#2d0a12 50%,#1c1c1c 100%);padding:70px 24px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 20% 50%,rgba(200,16,46,.2) 0%,transparent 60%),radial-gradient(ellipse 60% 70% at 80% 50%,rgba(245,166,35,.1) 0%,transparent 60%);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(200,16,46,.2);border:1px solid rgba(200,16,46,.4);color:var(--brand-lt);padding:5px 14px;border-radius:30px;font-size:.8rem;font-weight:600;margin-bottom:20px}
+.hero h1{font-family:'Noto Serif Bengali',serif;font-size:clamp(2rem,6vw,3.4rem);font-weight:900;color:#fff;line-height:1.2;margin-bottom:14px}
+.hero h1 em{color:var(--brand-lt);font-style:normal}
+.hero p{color:rgba(255,255,255,.6);font-size:1rem;max-width:420px;margin:0 auto 32px}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero-primary{background:var(--brand);color:#fff;border:none;padding:14px 32px;border-radius:30px;font-size:.95rem;font-weight:600;transition:.25s;box-shadow:0 6px 24px rgba(200,16,46,.4)}
+.btn-hero-primary:hover{background:var(--brand-dk);transform:translateY(-2px)}
+.btn-hero-secondary{background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.25);padding:14px 28px;border-radius:30px;font-size:.95rem;font-weight:500;transition:.25s;backdrop-filter:blur(6px)}
+.btn-hero-secondary:hover{background:rgba(255,255,255,.18)}
+
+/* HOME SECTIONS */
+.home-section{padding:32px 24px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:'Noto Serif Bengali',serif;font-size:1.3rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.section-see-all{background:none;border:none;color:var(--brand);font-size:.875rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px}
+.home-section+.home-section{border-top:1.5px solid var(--border);padding-top:28px}
+
+/* SHOP */
+.shop-layout{display:flex;gap:0;min-height:70vh}
+.filter-sidebar{width:240px;flex-shrink:0;border-right:1.5px solid var(--border);padding:24px 0;background:var(--surface);position:sticky;top:calc(var(--nav-h) + var(--cat-h));height:calc(100vh - var(--nav-h) - var(--cat-h));overflow-y:auto}
+.filter-section{padding:0 20px 20px;border-bottom:1.5px solid var(--border);margin-bottom:4px}
+.filter-section:last-child{border-bottom:none}
+.filter-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:12px}
+.filter-chips{display:flex;flex-wrap:wrap;gap:7px}
+.filter-chip{border:1.5px solid var(--border);border-radius:30px;padding:5px 13px;font-size:.8rem;cursor:pointer;transition:.18s;background:transparent;color:var(--ink2);font-weight:500}
+.filter-chip:hover{border-color:var(--brand);color:var(--brand)}
+.filter-chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.price-range-wrap{display:flex;gap:8px;align-items:center}
+.price-input{width:90px;border:1.5px solid var(--border);border-radius:var(--r-xs);padding:7px 10px;font-size:.82rem;outline:none;transition:.18s;background:var(--bg)}
+.price-input:focus{border-color:var(--brand)}
+.btn-apply-filter{width:100%;background:var(--brand);color:#fff;border:none;padding:10px;border-radius:var(--r-sm);font-size:.875rem;font-weight:600;margin-top:12px;transition:.2s}
+.btn-apply-filter:hover{background:var(--brand-dk)}
+.btn-clear-filter{width:100%;background:var(--bg);color:var(--ink2);border:1.5px solid var(--border);padding:9px;border-radius:var(--r-sm);font-size:.82rem;font-weight:500;margin-top:6px;transition:.2s}
+.btn-clear-filter:hover{border-color:var(--brand);color:var(--brand)}
+.product-main{flex:1;padding:24px;min-width:0}
+.products-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.products-count{font-size:.875rem;color:var(--ink2)}
+.products-count strong{color:var(--ink)}
+.sort-select{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 14px;font-size:.85rem;outline:none;background:var(--surface);cursor:pointer;transition:.18s}
+.sort-select:focus{border-color:var(--brand)}
+.view-toggle{display:flex;gap:4px}
+.view-btn{width:34px;height:34px;border:1.5px solid var(--border);border-radius:var(--r-xs);background:var(--surface);color:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:.18s}
+.view-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* PRODUCT GRID */
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.products-grid.list-view{grid-template-columns:1fr}
+.pcard{background:var(--surface);border-radius:var(--r);overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer;border:1.5px solid var(--border);position:relative}
+.pcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.pcard-img-wrap{position:relative;overflow:hidden;aspect-ratio:4/5;background:#f0ede6}
+.pcard-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.pcard:hover .pcard-img-wrap img{transform:scale(1.05)}
+.pcard-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;background:linear-gradient(135deg,#f5f0e8,#ede8df)}
+.pcard-badge{position:absolute;top:10px;left:10px;background:var(--brand);color:#fff;padding:3px 9px;border-radius:30px;font-size:.7rem;font-weight:700}
+.pcard-badge.sale{background:var(--accent)}
+.pcard-body{padding:13px}
+.pcard-cat{font-size:.72rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.pcard-name{font-weight:600;font-size:.92rem;line-height:1.35;margin-bottom:8px;color:var(--ink)}
+.pcard-price-row{display:flex;align-items:center;gap:8px}
+.pcard-price{font-size:1.05rem;font-weight:700;color:var(--brand)}
+.pcard-original{font-size:.8rem;color:var(--ink3);text-decoration:line-through}
+.pcard-sizes{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.pcard-size{font-size:.68rem;border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--ink3)}
+.pcard-footer{padding:0 13px 13px;display:flex;gap:8px}
+.btn-quick-add{flex:1;background:var(--ink);color:#fff;border:none;padding:9px;border-radius:var(--r-sm);font-size:.82rem;font-weight:600;transition:.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-quick-add:hover{background:var(--brand)}
+.btn-quick-view{width:38px;height:38px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--ink2);transition:.2s}
+.btn-quick-view:hover{border-color:var(--brand);color:var(--brand)}
+.products-grid.list-view .pcard{display:flex;flex-direction:row}
+.products-grid.list-view .pcard-img-wrap{width:140px;flex-shrink:0;aspect-ratio:auto;height:180px}
+.products-grid.list-view .pcard-content{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+
+/* PRODUCT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:700;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.product-modal{background:var(--surface);border-radius:16px;max-width:900px;width:100%;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:modalUp .28s cubic-bezier(.34,1.2,.64,1)}
+@keyframes modalUp{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.modal-inner{display:flex;overflow:hidden;flex:1;min-height:0}
+.modal-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);width:36px;height:36px;border-radius:50%;border:none;font-size:1rem;color:var(--ink2);display:flex;align-items:center;justify-content:center;transition:.2s;z-index:2;cursor:pointer;backdrop-filter:blur(4px)}
+.modal-close:hover{background:#fff;color:var(--brand)}
+.modal-gallery{width:45%;flex-shrink:0;position:relative;background:#f0ede6;overflow:hidden}
+.gallery-slider{display:flex;height:100%;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.gallery-slide{min-width:100%;height:100%;position:relative}
+.gallery-slide img{width:100%;height:100%;object-fit:cover;min-height:420px}
+.gallery-slide .placeholder{width:100%;min-height:420px;display:flex;align-items:center;justify-content:center;font-size:6rem}
+.gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;background:rgba(255,255,255,.9);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--ink);cursor:pointer;z-index:3;transition:.2s;backdrop-filter:blur(4px)}
+.gallery-arrow:hover{background:#fff;color:var(--brand)}
+.gallery-arrow.prev{left:10px}.gallery-arrow.next{right:10px}
+.gallery-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:3}
+.gallery-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;transition:.2s;padding:0}
+.gallery-dot.active{background:#fff;width:20px;border-radius:4px}
+.gallery-counter{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.5);color:#fff;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:20px;z-index:3}
+.modal-tabs{display:flex;border-bottom:2px solid var(--border);background:var(--surface2);padding:0 28px}
+.modal-tab{padding:11px 16px;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--ink3);transition:.2s;white-space:nowrap}
+.modal-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.modal-tab-body{display:none;padding:22px 28px;overflow-y:auto;flex:1}
+.modal-tab-body.active{display:block}
+.modal-body{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.modal-category{font-size:.75rem;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.modal-name{font-family:'Noto Serif Bengali',serif;font-size:1.4rem;font-weight:700;line-height:1.3;margin-bottom:12px}
+.modal-price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.modal-price{font-size:1.8rem;font-weight:700;color:var(--brand)}
+.modal-price-orig{font-size:1rem;color:var(--ink3);text-decoration:line-through}
+.modal-discount{background:var(--brand);color:#fff;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:30px}
+.modal-rating-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.stars-display{color:#f5a623;font-size:.95rem;letter-spacing:1px}
+.modal-divider{border:none;border-top:1.5px solid var(--border);margin:14px 0}
+.variant-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);margin-bottom:10px}
+.color-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.18s;position:relative;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.color-swatch.active{border-color:var(--brand);transform:scale(1.1)}
+.color-swatch-label{font-size:.72rem;text-align:center;margin-top:3px;color:var(--ink3);width:36px}
+.size-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.size-btn{min-width:44px;height:40px;border:1.5px solid var(--border);border-radius:var(--r-xs);font-size:.85rem;font-weight:600;background:var(--surface);color:var(--ink2);cursor:pointer;transition:.18s;padding:0 12px}
+.size-btn:hover{border-color:var(--brand);color:var(--brand)}
+.size-btn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.qty-wrap{display:flex;align-items:center;gap:0;border:1.5px solid var(--border);border-radius:var(--r-sm);width:fit-content;overflow:hidden;margin-bottom:18px}
+.qty-btn{width:38px;height:38px;border:none;background:var(--bg);font-size:.95rem;color:var(--ink);transition:.18s;flex-shrink:0}
+.qty-btn:hover{background:var(--border);color:var(--brand)}
+.qty-val{width:44px;text-align:center;font-weight:700;border:none;outline:none;background:transparent;font-size:.95rem}
+.btn-add-cart-main{width:100%;background:var(--brand);color:#fff;border:none;padding:14px;border-radius:var(--r-sm);font-size:1rem;font-weight:700;transition:.25s;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
+.btn-add-cart-main:hover{background:var(--brand-dk)}
+.btn-buy-now{width:100%;background:var(--ink);color:#fff;border:none;padding:13px;border-radius:var(--r-sm);font-size:.95rem;font-weight:600;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-buy-now:hover{background:#333}
+.modal-desc{color:var(--ink2);font-size:.875rem;line-height:1.7}
+.modal-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.modal-tag{font-size:.72rem;background:var(--bg);border:1px solid var(--border);border-radius:30px;padding:3px 10px;color:var(--ink3)}
+
+/* REVIEWS */
+.reviews-section{padding:0}
+.review-summary{display:flex;align-items:center;gap:24px;padding:16px 0;border-bottom:1.5px solid var(--border);margin-bottom:16px}
+.review-avg-big{font-size:3rem;font-weight:900;color:var(--ink);line-height:1}
+.review-avg-stars{color:#f5a623;font-size:1.3rem}
+.review-count{font-size:.85rem;color:var(--ink3);margin-top:4px}
+.review-bars{flex:1}
+.review-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.review-bar-label{font-size:.75rem;color:var(--ink3);width:16px;text-align:right}
+.review-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.review-bar-fill{height:100%;background:#f5a623;border-radius:3px;transition:width .5s}
+.review-bar-pct{font-size:.7rem;color:var(--ink3);width:28px}
+.review-list{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.review-item{background:var(--bg);border-radius:var(--r-sm);padding:14px}
+.review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.reviewer-name{font-weight:700;font-size:.88rem}
+.reviewer-date{font-size:.75rem;color:var(--ink3)}
+.review-stars{color:#f5a623;font-size:.82rem;margin-bottom:6px}
+.review-text{font-size:.85rem;color:var(--ink2);line-height:1.6}
+.review-verified{font-size:.72rem;color:#2e7d32;display:flex;align-items:center;gap:4px;margin-top:6px}
+.write-review-box{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:16px;margin-top:16px}
+.write-review-box h4{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px;color:var(--ink)}
+.star-rating-input{display:flex;gap:6px;margin-bottom:12px;flex-direction:row-reverse;justify-content:flex-end}
+.star-rating-input input{display:none}
+.star-rating-input label{font-size:1.6rem;color:var(--border);cursor:pointer;transition:.15s;line-height:1}
+.star-rating-input label:hover,.star-rating-input label:hover~label,.star-rating-input input:checked~label{color:#f5a623}
+.btn-submit-review{background:var(--brand);color:#fff;border:none;padding:10px 22px;border-radius:var(--r-sm);font-size:.875rem;font-weight:700;transition:.2s;display:flex;align-items:center;gap:6px}
+.btn-submit-review:hover{background:var(--brand-dk)}
+
+/* CART DRAWER */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;backdrop-filter:blur(2px);animation:fadeIn .2s}
+.cart-drawer{position:fixed;right:0;top:0;bottom:0;width:100%;max-width:400px;background:var(--surface);z-index:601;overflow-y:auto;box-shadow:-8px 0 40px rgba(0,0,0,.2);animation:drawerIn .3s cubic-bezier(.34,1.1,.64,1)}
+@keyframes drawerIn{from{transform:translateX(100%)}to{transform:none}}
+.drawer-header{position:sticky;top:0;background:var(--surface);padding:18px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;z-index:1}
+.drawer-title{font-family:'Noto Serif Bengali',serif;font-size:1.1rem;font-weight:700}
+.drawer-close{background:var(--bg);border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--ink2)}
+.drawer-close:hover{background:var(--border);color:var(--brand)}
+.drawer-body{padding:16px 20px}
+.cart-item-card{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--border)}
+.cart-item-img{width:70px;height:80px;border-radius:var(--r-xs);overflow:hidden;background:#f0ede6;flex-shrink:0}
+.cart-item-img img{width:100%;height:100%;object-fit:cover}
+.cart-item-img .placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.cart-item-info{flex:1;min-width:0}
+.cart-item-name{font-weight:600;font-size:.88rem;line-height:1.3;margin-bottom:4px}
+.cart-item-variant{font-size:.75rem;color:var(--ink3);margin-bottom:8px}
+.cart-item-price{font-weight:700;color:var(--brand);font-size:.95rem}
+.cart-qty-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.cart-qty-ctrl{display:flex;align-items:center;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.cart-qty-btn{width:28px;height:28px;border:none;background:var(--bg);font-size:.85rem;color:var(--ink);transition:.15s}
+.cart-qty-btn:hover{background:var(--border)}
+.cart-qty-num{width:32px;text-align:center;font-size:.85rem;font-weight:600}
+.cart-item-delete{background:none;border:none;color:var(--ink3);font-size:.8rem;padding:4px;transition:.15s}
+.cart-item-delete:hover{color:var(--brand)}
+.drawer-footer{position:sticky;bottom:0;background:var(--surface);padding:16px 20px;border-top:1.5px solid var(--border)}
+.cart-subtotal{display:flex;justify-content:space-between;font-size:.875rem;margin-bottom:6px;color:var(--ink2)}
+.cart-subtotal.total{font-weight:700;font-size:1.05rem;color:var(--ink);border-top:1.5px solid var(--border);padding-top:10px;margin-top:6px}
+.btn-checkout{width:100%;background:var(--brand);color:#fff;border:none;padding:14px;border-radius:var(--r-sm);font-size:1rem;font-weight:700;margin-top:14px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-checkout:hover{background:var(--brand-dk)}
+.cart-empty{text-align:center;padding:60px 20px;color:var(--ink3)}
+.cart-empty i{font-size:3rem;margin-bottom:16px;opacity:.35}
+.delivery-note{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:var(--r-xs);padding:8px 12px;font-size:.78rem;color:#2e7d32;margin-top:8px;display:flex;align-items:center;gap:6px}
+
+/* CHECKOUT */
+.checkout-page{max-width:900px;margin:0 auto;padding:32px 24px;display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+@media(max-width:700px){.checkout-page{grid-template-columns:1fr}}
+.checkout-card{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden;margin-bottom:16px}
+.checkout-card-header{padding:16px 20px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;gap:10px;font-weight:700;background:var(--surface2)}
+.checkout-card-header i{color:var(--brand);font-size:.95rem}
+.checkout-card-body{padding:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink2);margin-bottom:7px}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;font-size:.9rem;outline:none;transition:.2s;background:var(--bg);color:var(--ink)}
+.form-input:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(200,16,46,.08)}
+textarea.form-input{resize:vertical;min-height:80px}
+.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.payment-card{border:2px solid var(--border);border-radius:var(--r-sm);padding:14px;cursor:pointer;transition:.2s;text-align:center;background:var(--bg)}
+.payment-card.active{border-color:var(--brand);background:#fff5f7}
+.payment-card i{font-size:1.6rem;margin-bottom:7px;display:block}
+.payment-card.cod i{color:#2ecc71}.payment-card.mobile i{color:#e91e63}
+.payment-card span{font-size:.82rem;font-weight:600;display:block}
+.payment-card small{font-size:.72rem;color:var(--ink3)}
+.order-summary-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--border)}
+.order-summary-item:last-child{border-bottom:none}
+.os-img{width:52px;height:60px;border-radius:var(--r-xs);background:#f0ede6;overflow:hidden;flex-shrink:0}
+.os-img img{width:100%;height:100%;object-fit:cover}
+.os-img .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.os-info{flex:1;min-width:0}
+.os-name{font-size:.82rem;font-weight:600;line-height:1.3}
+.os-variant{font-size:.72rem;color:var(--ink3)}
+.os-price{font-weight:700;font-size:.88rem;color:var(--brand);white-space:nowrap}
+.summary-totals{margin-top:14px;border-top:2px solid var(--border);padding-top:14px}
+.summary-row{display:flex;justify-content:space-between;font-size:.875rem;padding:4px 0;color:var(--ink2)}
+.summary-row.grand{font-weight:800;font-size:1.1rem;color:var(--ink);margin-top:8px;padding-top:10px;border-top:2px solid var(--border)}
+.summary-row.grand .grand-price{color:var(--brand)}
+.btn-place-order{width:100%;background:var(--brand);color:#fff;border:none;padding:16px;border-radius:var(--r-sm);font-size:1rem;font-weight:700;margin-top:16px;transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(200,16,46,.3)}
+.btn-place-order:hover{background:var(--brand-dk);transform:translateY(-1px)}
+.delivery-zone-box{background:#fff8e1;border:1.5px solid #ffe082;border-radius:var(--r-xs);padding:10px 14px;margin-bottom:12px;font-size:.82rem;color:#795548;display:flex;align-items:center;gap:8px}
+.delivery-zone-box i{color:#f57f17;flex-shrink:0}
+
+/* SUCCESS */
+.success-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;padding:40px 24px;text-align:center}
+.success-anim{width:90px;height:90px;background:linear-gradient(135deg,#2ecc71,#27ae60);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;margin-bottom:24px;box-shadow:0 8px 32px rgba(46,204,113,.35);animation:popIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{font-family:'Noto Serif Bengali',serif;font-size:1.7rem;font-weight:900;margin-bottom:10px}
+.success-oid{font-family:monospace;font-size:1.1rem;font-weight:700;background:#f0faf4;border:1.5px solid #c3e6cb;color:#27ae60;padding:10px 24px;border-radius:var(--r-sm);margin:12px 0}
+.success-sub{color:var(--ink2);max-width:340px;margin:0 auto 28px;line-height:1.6;font-size:.9rem}
+.btn-group-success{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* ORDER TRACKING */
+.tracking-page{max-width:600px;margin:0 auto;padding:32px 24px}
+.tracking-title{font-family:'Noto Serif Bengali',serif;font-size:1.4rem;font-weight:900;margin-bottom:20px;text-align:center}
+.tracking-input-row{display:flex;gap:10px;margin-bottom:28px}
+.tracking-input-row input{flex:1}
+.btn-track{background:var(--brand);color:#fff;border:none;padding:11px 20px;border-radius:var(--r-sm);font-weight:700;white-space:nowrap;transition:.2s}
+.btn-track:hover{background:var(--brand-dk)}
+.tracking-result{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden}
+.tracking-result-header{padding:18px 20px;background:var(--surface2);border-bottom:1.5px solid var(--border)}
+.tracking-oid{font-family:monospace;font-size:.9rem;color:var(--ink3)}
+.tracking-customer{font-size:1rem;font-weight:700;margin-top:4px}
+.tracking-status-bar{padding:24px 20px}
+.status-steps{display:flex;flex-direction:column;gap:0;position:relative}
+.status-steps::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:2px;background:var(--border);z-index:0}
+.status-step{display:flex;align-items:flex-start;gap:14px;padding:0 0 24px;position:relative;z-index:1}
+.status-step:last-child{padding-bottom:0}
+.step-icon{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--ink3);flex-shrink:0;transition:.3s}
+.step-icon.done{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.step-icon.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 0 0 4px rgba(200,16,46,.15)}
+.step-info{flex:1;padding-top:5px}
+.step-label{font-weight:700;font-size:.9rem}
+.step-desc{font-size:.78rem;color:var(--ink3);margin-top:2px}
+.tracking-items{padding:0 20px 20px}
+.tracking-items-title{font-weight:700;font-size:.88rem;margin-bottom:10px;color:var(--ink2)}
+.tracking-item-row{display:flex;justify-content:space-between;font-size:.83rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.tracking-item-row:last-child{border-bottom:none}
+.tracking-total{display:flex;justify-content:space-between;font-weight:800;font-size:.95rem;padding:10px 0 0;border-top:2px solid var(--border);margin-top:6px}
+.tracking-total span:last-child{color:var(--brand)}
+.courier-info-box{background:#e3f2fd;border:1px solid #90caf9;border-radius:var(--r-xs);padding:12px 16px;margin:0 20px 16px;display:flex;flex-direction:column;gap:4px}
+.courier-info-box .ci-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1565c0;margin-bottom:4px}
+.courier-info-box .ci-row{font-size:.85rem;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.courier-info-box a{color:#1565c0;text-decoration:underline;font-size:.82rem}
+
+/* ADMIN */
+.admin-wrapper{display:none;min-height:100vh;background:#f0f2f5}
+.admin-wrapper.active{display:block}
+.admin-topbar{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;height:58px;display:flex;align-items:center;padding:0 20px;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.3);position:sticky;top:0;z-index:100;overflow-x:auto}
+.admin-brand{font-family:'Noto Serif Bengali',serif;font-size:1rem;font-weight:700;white-space:nowrap}
+.admin-brand span{color:var(--accent)}
+.admin-nav-links{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.admin-nav-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.8);padding:7px 14px;border-radius:20px;font-size:.82rem;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.admin-nav-btn:hover{background:rgba(255,255,255,.2);color:#fff}
+.admin-nav-btn.active{background:var(--brand);color:#fff}
+.admin-body{padding:24px;max-width:1300px;margin:0 auto}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:18px;border:1.5px solid var(--border);display:flex;gap:14px;align-items:center;transition:.2s}
+.stat-card:hover{box-shadow:var(--shadow)}
+.stat-ico{width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.stat-ico.red{background:#fff0f0;color:var(--brand)}.stat-ico.green{background:#e8f5e9;color:#2e7d32}
+.stat-ico.yellow{background:#fffde7;color:#f57f17}.stat-ico.blue{background:#e3f2fd;color:#1565c0}
+.stat-ico.purple{background:#f3e5f5;color:#7b1fa2}.stat-ico.orange{background:#fff3e0;color:#e65100}
+.stat-lbl{font-size:.72rem;color:var(--ink3);margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.stat-val{font-size:1.4rem;font-weight:800;color:var(--ink)}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden}
+.chart-header{padding:14px 18px;border-bottom:1.5px solid var(--border);font-weight:700;font-size:.9rem;background:var(--surface2);display:flex;align-items:center;gap:8px}
+.chart-body{padding:16px;height:180px;display:flex;align-items:flex-end;gap:6px;position:relative}
+.chart-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.chart-bar{width:100%;background:var(--brand);border-radius:4px 4px 0 0;transition:height .4s;min-height:4px;position:relative;cursor:pointer}
+.chart-bar:hover{background:var(--brand-dk)}
+.chart-bar-lbl{font-size:.6rem;color:var(--ink3);white-space:nowrap}
+.chart-bar-tooltip{position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:.65rem;padding:3px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;display:none}
+.chart-bar:hover .chart-bar-tooltip{display:block}
+.donut-wrap{display:flex;align-items:center;gap:16px;padding:16px}
+.donut-legend{display:flex;flex-direction:column;gap:6px}
+.donut-item{display:flex;align-items:center;gap:6px;font-size:.78rem}
+.donut-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.table-card{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden;margin-bottom:20px}
+.tc-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--border);background:var(--surface2);flex-wrap:wrap;gap:10px}
+.tc-title{font-weight:700;display:flex;align-items:center;gap:8px}
+.tc-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-add-new{background:var(--brand);color:#fff;border:none;padding:8px 16px;border-radius:var(--r-sm);font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:.2s}
+.btn-add-new:hover{background:var(--brand-dk)}
+.search-box{border:1.5px solid var(--border);border-radius:var(--r-sm);padding:7px 12px;font-size:.82rem;outline:none;background:var(--bg);min-width:160px}
+.search-box:focus{border-color:var(--brand)}
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.data-table th{padding:11px 14px;text-align:left;background:#f5f4f0;font-weight:700;color:var(--ink3);font-size:.72rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--border);white-space:nowrap}
+.data-table td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#faf9f6}
+.overflow-x{overflow-x:auto}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:30px;font-size:.72rem;font-weight:700}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge-pending{background:#fff3e0;color:#e65100}.badge-processing{background:#e3f2fd;color:#1565c0}
+.badge-shipped{background:#f3e5f5;color:#7b1fa2}.badge-delivered{background:#e8f5e9;color:#2e7d32}
+.badge-cancelled{background:#ffebee;color:#c62828}
+.btn-action{border:none;padding:5px 11px;border-radius:6px;font-size:.76rem;cursor:pointer;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:4px}
+.btn-edit{background:#e3f2fd;color:#1565c0}.btn-edit:hover{background:#bbdefb}
+.btn-del{background:#ffebee;color:#c62828}.btn-del:hover{background:#ffcdd2}
+.btn-view{background:#e8f5e9;color:#2e7d32}.btn-view:hover{background:#c8e6c9}
+.btn-neutral{background:var(--bg);color:var(--ink2);border:1.5px solid var(--border)}.btn-neutral:hover{border-color:var(--brand);color:var(--brand)}
+.btn-courier{background:#f3e5f5;color:#7b1fa2}.btn-courier:hover{background:#e1bee7}
+.btn-print{background:#fff3e0;color:#e65100}.btn-print:hover{background:#ffe0b2}
+.hs-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:30px;font-size:.7rem;font-weight:700}
+.hs-featured{background:#fff8e1;color:#f57f17}.hs-new{background:#e8f5e9;color:#2e7d32}
+.hs-popular{background:#ffebee;color:#c62828}.hs-none{background:var(--bg);color:var(--ink3)}
+.form-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.form-modal-card{background:var(--surface);border-radius:var(--r);max-width:620px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalUp .25s cubic-bezier(.34,1.2,.64,1)}
+.fm-header{padding:18px 22px;border-bottom:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);position:sticky;top:0;z-index:1}
+.fm-title{font-weight:700;font-size:1rem}
+.fm-close{background:none;border:none;font-size:1.1rem;color:var(--ink3);cursor:pointer;padding:4px;transition:.15s}.fm-close:hover{color:var(--brand)}
+.fm-body{padding:22px}
+.fm-footer{padding:16px 22px;border-top:1.5px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--surface2);position:sticky;bottom:0}
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:6px;border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px;background:var(--bg);min-height:44px;cursor:text;transition:.2s}
+.tag-input-wrap:focus-within{border-color:var(--brand)}
+.tag-pill{background:var(--ink);color:#fff;padding:3px 10px;border-radius:30px;font-size:.78rem;display:flex;align-items:center;gap:5px}
+.tag-pill button{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:.7rem;padding:0 1px;line-height:1}.tag-pill button:hover{color:#fff}
+.tag-input-inner{border:none;background:transparent;outline:none;font-size:.85rem;flex:1;min-width:80px;font-family:inherit}
+.color-input-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px}
+.color-entry{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.color-entry input[type=color]{width:34px;height:34px;border:2px solid var(--border);border-radius:50%;cursor:pointer;padding:0;outline:none;background:none}
+.color-entry-del{position:absolute;top:-5px;right:-5px;background:var(--brand);color:#fff;border:none;width:16px;height:16px;border-radius:50%;font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-add-color{background:var(--bg);border:1.5px dashed var(--border);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;color:var(--ink3);transition:.15s}.btn-add-color:hover{border-color:var(--brand);color:var(--brand)}
+.size-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.size-preset-btn{border:1.5px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.8rem;cursor:pointer;transition:.15s;background:transparent;font-weight:600;color:var(--ink2)}
+.size-preset-btn.selected{background:var(--ink);color:#fff;border-color:var(--ink)}
+.order-detail-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:800;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}
+.order-detail-card{background:var(--surface);border-radius:var(--r);max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalUp .25s cubic-bezier(.34,1.2,.64,1)}
+.od-tabs{display:flex;border-bottom:2px solid var(--border);background:var(--surface2);padding:0 22px}
+.od-tab{padding:12px 18px;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--ink3);transition:.2s}
+.od-tab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.od-tab-body{display:none;padding:20px 22px}
+.od-tab-body.active{display:block}
+.courier-assign-box{background:#f8f5ff;border:1.5px solid #d1c4e9;border-radius:var(--r-sm);padding:16px}
+.courier-assign-box .ca-title{font-weight:700;font-size:.9rem;color:#4527a0;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.tracking-chip{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:#fff;padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:600;font-family:monospace}
+.order-timeline{display:flex;flex-direction:column;gap:0;position:relative;padding-left:28px}
+.order-timeline::before{content:'';position:absolute;left:9px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.ot-item{position:relative;padding:0 0 18px}
+.ot-item:last-child{padding-bottom:0}
+.ot-dot{position:absolute;left:-23px;top:2px;width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:var(--surface)}
+.ot-dot.done{background:var(--accent2);border-color:var(--accent2)}
+.ot-dot.current{background:var(--brand);border-color:var(--brand)}
+.ot-label{font-weight:700;font-size:.85rem}
+.ot-time{font-size:.75rem;color:var(--ink3)}
+.alert-box{border-radius:var(--r-xs);padding:10px 14px;font-size:.82rem;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px}
+.alert-box.info{background:#e3f2fd;border:1px solid #90caf9;color:#1565c0}
+.alert-box.warn{background:#fff3e0;border:1px solid #ffcc02;color:#e65100}
+.alert-box.success{background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32}
+.alert-box.danger{background:#ffebee;border:1px solid #ef9a9a;color:#c62828}
+/* ADMIN LOGIN */
+.admin-login-page{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#0d0d1a);display:flex;align-items:center;justify-content:center;z-index:900;padding:20px}
+.admin-login-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px);border-radius:20px;padding:40px;max-width:360px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.5);text-align:center}
+.admin-login-logo{font-family:'Noto Serif Bengali',serif;font-size:2rem;font-weight:900;color:#fff;margin-bottom:6px}
+.admin-login-logo span{color:var(--brand-lt)}
+.admin-login-sub{color:rgba(255,255,255,.4);font-size:.875rem;margin-bottom:28px}
+.admin-login-input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);color:#fff;padding:12px 16px;border-radius:var(--r-sm);font-size:.95rem;outline:none;text-align:center;letter-spacing:3px;transition:.2s;font-family:inherit}
+.admin-login-input::placeholder{color:rgba(255,255,255,.25);letter-spacing:0}
+.admin-login-input:focus{border-color:var(--brand-lt);background:rgba(255,255,255,.1)}
+.btn-admin-login{width:100%;background:var(--brand);color:#fff;border:none;padding:13px;border-radius:var(--r-sm);font-size:.95rem;font-weight:700;margin-top:14px;transition:.25s;box-shadow:0 6px 20px rgba(200,16,46,.4)}
+.btn-admin-login:hover{background:var(--brand-dk);transform:translateY(-1px)}
+.btn-admin-back{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:.85rem;margin-top:12px;cursor:pointer;transition:.15s;font-family:inherit}.btn-admin-back:hover{color:rgba(255,255,255,.7)}
+.bulk-bar{display:flex;align-items:center;gap:10px;padding:10px 20px;background:#fff8e1;border-bottom:1.5px solid #ffe082;font-size:.85rem;flex-wrap:wrap}
+.empty-state{text-align:center;padding:48px 20px;color:var(--ink3)}
+.empty-state i{font-size:3rem;margin-bottom:16px;opacity:.3;display:block}
+.empty-state p{font-size:.95rem}
+.home-section-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.hs-option{border:2px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;transition:.2s;text-align:center;background:var(--bg);position:relative}
+.hs-option:hover{border-color:var(--brand-lt)}
+.hs-option.active{border-color:var(--brand);background:#fff5f7}
+.hs-option input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.hs-option .hs-emoji{font-size:1.3rem;display:block;margin-bottom:3px}
+.hs-option .hs-label{font-size:.78rem;font-weight:600;color:var(--ink2)}
+.hs-option.active .hs-label{color:var(--brand)}
+.hs-option-none{grid-column:1/-1}
+.settings-tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:24px;overflow-x:auto;scrollbar-width:none}
+.settings-tabs::-webkit-scrollbar{display:none}
+.stab{padding:10px 18px;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:var(--ink3);transition:.2s;white-space:nowrap}
+.stab.active{color:var(--brand);border-bottom-color:var(--brand)}
+.settings-section{display:none}.settings-section.active{display:block}
+.settings-card{background:var(--surface);border-radius:var(--r);border:1.5px solid var(--border);overflow:hidden;margin-bottom:20px}
+.sc-header{padding:14px 20px;border-bottom:1.5px solid var(--border);font-weight:700;font-size:.9rem;background:var(--surface2);display:flex;align-items:center;gap:8px}
+.sc-header i{color:var(--brand)}
+.sc-body{padding:20px}
+.toggle-switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#ccc;border-radius:24px;cursor:pointer;transition:.3s}
+.toggle-slider:before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
+.toggle-switch input:checked+.toggle-slider{background:var(--brand)}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(20px)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row-info .tlabel{font-size:.875rem;font-weight:600}
+.toggle-row-info .tdesc{font-size:.75rem;color:var(--ink3);margin-top:2px}
+.courier-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.courier-card .cc-info{flex:1}
+.courier-card .cc-name{font-weight:700;font-size:.9rem}
+.courier-card .cc-url{font-size:.75rem;color:var(--ink3);margin-top:2px;word-break:break-all}
+.courier-card .cc-actions{display:flex;gap:6px;flex-shrink:0}
+.color-preview{width:40px;height:40px;border-radius:8px;border:2px solid var(--border);cursor:pointer;overflow:hidden;flex-shrink:0}
+.color-picker-row{display:flex;align-items:center;gap:12px}
+@media print{body>*{display:none!important}#printArea{display:block!important;position:fixed;inset:0;z-index:99999;background:#fff;padding:20mm 15mm}}
+#printArea{display:none}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .filter-sidebar{display:none}.modal-inner{flex-direction:column}
+  .modal-gallery{width:100%;height:280px}
+  .gallery-slide img,.gallery-slide .placeholder{min-height:280px}
+  .charts-row{grid-template-columns:1fr}.footer-inner{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .main-nav .nav-search{display:none}
+  .mobile-menu-btn{display:flex}.cat-bar{display:none}
+}
+@media(max-width:600px){
+  .nav-brand{font-size:1.2rem}
+  .products-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .checkout-page{padding:16px}.admin-body{padding:14px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .hero{padding:50px 16px}.hero h1{font-size:1.8rem}
+  .main-nav{padding:0 14px;gap:10px}.product-main{padding:16px}
+  .form-row{grid-template-columns:1fr}.admin-nav-btn{padding:6px 10px;font-size:.75rem}
+  .tracking-input-row{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div id="pageLoader">
+  <div class="brand">Style<span>BD</span></div>
+  <div class="bar"><div class="bar-fill"></div></div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay">
+  <div class="lo-box">
+    <div class="lo-spinner"></div>
+    <div class="lo-text">লোড হচ্ছে...</div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="site">
+  <div id="announcementBar" style="display:none">
+    <span id="announcementText"></span>
+    <button onclick="document.getElementById('announcementBar').style.display='none'"><i class="fas fa-times"></i></button>
+  </div>
+  <nav class="main-nav" id="mainNav">
+    <button class="mobile-menu-btn" onclick="openMobileMenu()"><i class="fas fa-bars"></i></button>
+    <div class="nav-brand" id="navBrand" onclick="goHome()">Style<span>BD</span></div>
+    <div class="nav-search">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="globalSearch" placeholder="পণ্য খুঁজুন..." oninput="handleGlobalSearch()"/>
+      <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" title="অর্ডার ট্র্যাক" onclick="showPage('trackingPage')"><i class="fas fa-truck"></i></button>
+      <button class="nav-btn" title="অ্যাডমিন" onclick="showAdminLogin()"><i class="fas fa-shield-alt"></i></button>
+      <button class="nav-btn cart-btn" onclick="toggleCartDrawer()">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
+  </nav>
+  <div class="cat-bar" id="catBar">
+    <div class="cat-item active" data-cat="all" onclick="selectCategory('all',this)"><span>🏪</span> সব পণ্য</div>
+    <div class="cat-item" data-cat="পুরুষ-পোশাক" onclick="selectCategory('পুরুষ-পোশাক',this)"><span>👔</span> পুরুষ পোশাক</div>
+    <div class="cat-item" data-cat="মহিলা-পোশাক" onclick="selectCategory('মহিলা-পোশাক',this)"><span>👗</span> মহিলা পোশাক</div>
+    <div class="cat-item" data-cat="শিশু-পোশাক" onclick="selectCategory('শিশু-পোশাক',this)"><span>🧒</span> শিশু পোশাক</div>
+    <div class="cat-item" data-cat="জুতা" onclick="selectCategory('জুতা',this)"><span>👟</span> জুতা</div>
+    <div class="cat-item" data-cat="ব্যাগ" onclick="selectCategory('ব্যাগ',this)"><span>👜</span> ব্যাগ</div>
+    <div class="cat-item" data-cat="ইলেকট্রনিক্স" onclick="selectCategory('ইলেকট্রনিক্স',this)"><span>📱</span> ইলেকট্রনিক্স</div>
+    <div class="cat-item" data-cat="গৃহস্থালি" onclick="selectCategory('গৃহস্থালি',this)"><span>🏠</span> গৃহস্থালি</div>
+    <div class="cat-item" data-cat="সৌন্দর্য" onclick="selectCategory('সৌন্দর্য',this)"><span>💄</span> সৌন্দর্য</div>
+    <div class="cat-item" data-cat="খেলাধুলা" onclick="selectCategory('খেলাধুলা',this)"><span>⚽</span> খেলাধুলা</div>
+    <div class="cat-item" data-cat="বই-শিক্ষা" onclick="selectCategory('বই-শিক্ষা',this)"><span>📚</span> বই ও শিক্ষা</div>
+    <div class="cat-item" data-cat="অফার" onclick="selectCategory('অফার',this)"><span>🔥</span> বিশেষ অফার</div>
+  </div>
+  <div id="mobileNavOverlay" class="mobile-nav-overlay hidden" onclick="closeMobileMenu()"></div>
+  <div id="mobileNavDrawer" class="mobile-nav-drawer hidden">
+    <div class="mobile-nav-header">
+      <div class="brand">Style<span>BD</span></div>
+      <button class="mobile-nav-close" onclick="closeMobileMenu()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mobile-search-wrap">
+      <input type="text" id="mobileSearch" placeholder="পণ্য খুঁজুন..." oninput="handleMobileSearch()"/>
+    </div>
+    <div class="mobile-cat-list" id="mobileCatList"></div>
+    <div class="mobile-nav-footer">
+      <button onclick="closeMobileMenu();showPage('trackingPage')"><i class="fas fa-truck"></i> অর্ডার ট্র্যাক করুন</button>
+      <button onclick="closeMobileMenu();showAdminLogin()"><i class="fas fa-shield-alt"></i> অ্যাডমিন প্যানেল</button>
+    </div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="homePage">
+    <div class="hero" id="heroSection">
+      <div class="hero-tag" id="heroTag"><i class="fas fa-bolt"></i> নতুন কালেকশন এসেছে!</div>
+      <h1 id="heroTitle">বাংলাদেশের<br/><em>সেরা অনলাইন শপ</em></h1>
+      <p id="heroSubtitle">হাজারো পণ্য একটি জায়গায়। দ্রুত ডেলিভারি, সেরা দাম।</p>
+      <div class="hero-ctas">
+        <button class="btn-hero-primary" id="heroCTA1Btn" onclick="showPage('shopPage')"><i class="fas fa-shopping-bag"></i> এখনই কিনুন</button>
+        <button class="btn-hero-secondary" id="heroCTA2Btn" onclick="selectCategory('অফার',null)"><i class="fas fa-fire"></i> অফার দেখুন</button>
+      </div>
+    </div>
+    <div class="home-section" id="homeSectionFeatured">
+      <div class="section-header">
+        <div class="section-title">⭐ সেরা পণ্য</div>
+        <button class="section-see-all" onclick="showPage('shopPage')">সব দেখুন <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="products-grid" id="featuredGrid"></div>
+    </div>
+    <div class="home-section" id="homeSectionNew">
+      <div class="section-header">
+        <div class="section-title">🆕 নতুন পণ্য</div>
+        <button class="section-see-all" onclick="showPage('shopPage')">সব দেখুন <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="products-grid" id="newGrid"></div>
+    </div>
+    <div class="home-section" id="homeSectionPopular">
+      <div class="section-header">
+        <div class="section-title">🔥 জনপ্রিয় পণ্য</div>
+        <button class="section-see-all" onclick="showPage('shopPage')">সব দেখুন <i class="fas fa-arrow-right"></i></button>
+      </div>
+      <div class="products-grid" id="popularGrid"></div>
+    </div>
+    <footer class="site-footer" id="siteFooter">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-brand" id="footerBrand">Style<span>BD</span></div>
+          <p class="footer-about" id="footerAbout">আমরা সেরা মানের পণ্য সাশ্রয়ী মূল্যে সরবরাহ করি।</p>
+          <div class="footer-social">
+            <a id="footerFbLink" href="#" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            <a id="footerWaLink" href="#" target="_blank"><i class="fab fa-whatsapp"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>দ্রুত লিংক</h4>
+          <div class="footer-links">
+            <a onclick="goHome()">হোম</a>
+            <a onclick="showPage('shopPage')">শপ</a>
+            <a onclick="showPage('trackingPage')">অর্ডার ট্র্যাকিং</a>
+          </div>
+        </div>
+        <div>
+          <h4>যোগাযোগ</h4>
+          <div class="footer-contact">
+            <span><i class="fas fa-phone"></i><span id="footerPhone">01700000000</span></span>
+            <span><i class="fas fa-envelope"></i><span id="footerEmail">info@stylebd.com</span></span>
+            <span><i class="fas fa-map-marker-alt"></i><span id="footerAddress">ঢাকা, বাংলাদেশ</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom" id="footerBottom">© 2025 StyleBD. সর্বস্বত্ব সংরক্ষিত।</div>
+    </footer>
+  </div>
+
+  <!-- SHOP PAGE -->
+  <div class="page" id="shopPage">
+    <div class="shop-layout">
+      <div class="filter-sidebar">
+        <div class="filter-section">
+          <div class="filter-title">মূল্য পরিসীমা</div>
+          <div class="price-range-wrap">
+            <input type="number" class="price-input" id="priceMin" placeholder="সর্বনিম্ন"/>
+            <span style="color:var(--ink3)">—</span>
+            <input type="number" class="price-input" id="priceMax" placeholder="সর্বোচ্চ"/>
+          </div>
+          <button class="btn-apply-filter" onclick="applyFilters()"><i class="fas fa-filter"></i> ফিল্টার</button>
+          <button class="btn-clear-filter" onclick="clearFilters()">ফিল্টার মুছুন</button>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">কালার</div>
+          <div class="filter-chips" id="sidebarColorFilter"></div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">সাইজ</div>
+          <div class="filter-chips" id="sidebarSizeFilter"></div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-title">ফিল্টার</div>
+          <div class="filter-chips">
+            <button class="filter-chip" id="filterInStock" onclick="toggleFilterChip(this,'instock')">স্টকে আছে</button>
+            <button class="filter-chip" id="filterOnSale" onclick="toggleFilterChip(this,'sale')">সেলে আছে</button>
+            <button class="filter-chip" id="filterFeatured" onclick="toggleFilterChip(this,'featured')">ফিচার্ড</button>
+          </div>
+        </div>
+      </div>
+      <div class="product-main">
+        <div class="products-toolbar">
+          <div class="products-count">মোট <strong id="productCount">0</strong>টি পণ্য</div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <select class="sort-select" id="sortSel" onchange="applyFilters()">
+              <option value="">ক্রম নির্বাচন</option>
+              <option value="price-asc">দাম: কম থেকে বেশি</option>
+              <option value="price-desc">দাম: বেশি থেকে কম</option>
+              <option value="name-asc">নাম (অ-ব)</option>
+              <option value="newest">নতুন আগে</option>
+            </select>
+            <div class="view-toggle">
+              <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')"><i class="fas fa-th"></i></button>
+              <button class="view-btn" id="listViewBtn" onclick="setView('list')"><i class="fas fa-list"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="products-grid" id="shopGrid"></div>
+        <div id="noProducts" class="hidden empty-state"><i class="fas fa-search"></i><p>কোনো পণ্য পাওয়া যায়নি</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKING PAGE -->
+  <div class="page" id="trackingPage">
+    <div class="tracking-page">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:2.5rem;margin-bottom:8px">📦</div>
+        <div class="tracking-title">অর্ডার ট্র্যাকিং</div>
+        <p style="color:var(--ink3);font-size:.9rem">আপনার অর্ডার নম্বর দিয়ে অর্ডারের অবস্থা জানুন</p>
+      </div>
+      <div class="tracking-input-row">
+        <input class="form-input" id="trackInput" placeholder="অর্ডার নম্বর লিখুন (যেমন: ORD1234567890)"/>
+        <button class="btn-track" onclick="trackOrder()"><i class="fas fa-search"></i> ট্র্যাক করুন</button>
+      </div>
+      <div id="trackingResult" class="hidden"></div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT PAGE -->
+  <div class="page" id="checkoutPage">
+    <div class="checkout-page">
+      <div class="checkout-form-section">
+        <div class="checkout-card">
+          <div class="checkout-card-header"><i class="fas fa-user"></i> ডেলিভারি তথ্য</div>
+          <div class="checkout-card-body">
+            <div class="form-group"><label class="form-label">পূর্ণ নাম *</label><input class="form-input" id="cName" placeholder="আপনার পূর্ণ নাম"/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">ফোন নম্বর *</label><input class="form-input" id="cPhone" type="tel" placeholder="01XXXXXXXXX"/></div>
+              <div class="form-group">
+                <label class="form-label">জেলা *</label>
+                <select class="form-input" id="cDistrict" onchange="updateDeliveryZone()">
+                  <option value="">জেলা বেছে নিন</option>
+                  <option>ঢাকা</option><option>চট্টগ্রাম</option><option>রাজশাহী</option>
+                  <option>খুলনা</option><option>বরিশাল</option><option>সিলেট</option>
+                  <option>রংপুর</option><option>ময়মনসিংহ</option><option>কুমিল্লা</option>
+                  <option>নেত্রকোণা</option><option>গাজীপুর</option><option>নারায়ণগঞ্জ</option>
+                  <option>টাঙ্গাইল</option><option>ফরিদপুর</option><option>ব্রাহ্মণবাড়িয়া</option>
+                  <option>নোয়াখালী</option><option>চাঁদপুর</option><option>লক্ষ্মীপুর</option>
+                  <option>অন্যান্য</option>
+                </select>
+              </div>
+            </div>
+            <div id="deliveryZoneInfo" class="delivery-zone-box hidden"><i class="fas fa-truck"></i><span id="deliveryZoneText"></span></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">থানা / উপজেলা</label><input class="form-input" id="cThana" placeholder="থানা / উপজেলার নাম"/></div>
+              <div class="form-group"><label class="form-label">বাড়ি / রাস্তা *</label><input class="form-input" id="cAddress" placeholder="বাড়ি নং, রাস্তা, এলাকা"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">বিশেষ নোট</label><textarea class="form-input" id="cNote" placeholder="অর্ডার সম্পর্কে কোনো বিশেষ নির্দেশনা..."></textarea></div>
+          </div>
+        </div>
+        <div class="checkout-card">
+          <div class="checkout-card-header"><i class="fas fa-credit-card"></i> পেমেন্ট পদ্ধতি</div>
+          <div class="checkout-card-body">
+            <div class="payment-grid">
+              <div class="payment-card cod active" id="payCOD" onclick="selectPaymentMethod('cod')">
+                <i class="fas fa-money-bill-wave"></i><span>ক্যাশ অন ডেলিভারি</span><small>পণ্য পেয়ে পেমেন্ট</small>
+              </div>
+              <div class="payment-card mobile" id="payMobile" onclick="selectPaymentMethod('mobile')">
+                <i class="fas fa-mobile-alt"></i><span>bKash / Nagad</span><small>মোবাইল ব্যাংকিং</small>
+              </div>
+            </div>
+            <div id="bkashField" style="margin-top:16px;display:none">
+              <label class="form-label">bKash / Nagad নম্বর *</label>
+              <input class="form-input" id="cBkash" placeholder="01XXXXXXXXX"/>
+              <p style="font-size:.75rem;color:var(--ink3);margin-top:6px"><i class="fas fa-info-circle"></i> পেমেন্টের পর অ্যাডমিন কনফার্ম করবেন</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="order-summary-section">
+        <div class="checkout-card" style="position:sticky;top:calc(var(--nav-h) + var(--cat-h) + 16px)">
+          <div class="checkout-card-header"><i class="fas fa-receipt"></i> অর্ডার সারাংশ</div>
+          <div class="checkout-card-body">
+            <div id="checkoutItems"></div>
+            <div class="summary-totals" id="checkoutTotals"></div>
+          </div>
+          <div style="padding:0 20px 20px">
+            <button class="btn-place-order" onclick="placeOrderNow()"><i class="fas fa-lock"></i> অর্ডার কনফার্ম করুন</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS PAGE -->
+  <div class="page" id="successPage">
+    <div class="success-page">
+      <div class="success-anim"><i class="fas fa-check"></i></div>
+      <div class="success-title">অর্ডার সম্পন্ন! 🎉</div>
+      <p style="color:var(--ink3);margin-bottom:6px">আপনার অর্ডার নম্বর</p>
+      <div class="success-oid" id="successOid">—</div>
+      <p class="success-sub">আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব। কেনাকাটার জন্য ধন্যবাক!</p>
+      <div class="btn-group-success">
+        <button class="btn-hero-primary" onclick="trackSuccessOrder()"><i class="fas fa-truck"></i> অর্ডার ট্র্যাক করুন</button>
+        <button class="btn-hero-secondary" onclick="goHome()"><i class="fas fa-home"></i> হোমে ফিরুন</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /#site -->
+
+<!-- CART DRAWER -->
+<div id="cartOverlay" class="cart-overlay hidden" onclick="toggleCartDrawer()"></div>
+<div id="cartDrawer" class="cart-drawer hidden">
+  <div class="drawer-header">
+    <div class="drawer-title">🛍️ আপনার কার্ট (<span id="cartItemCount">0</span>)</div>
+    <button class="drawer-close" onclick="toggleCartDrawer()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-footer" id="cartFooter"></div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModalOverlay" class="modal-overlay hidden" onclick="closeProductModal(event)">
+  <div class="product-modal" id="productModal" style="position:relative">
+    <button class="modal-close" onclick="closeProductModalDirect()"><i class="fas fa-times"></i></button>
+    <div class="modal-inner">
+      <div class="modal-gallery" id="modalGalleryWrap">
+        <div class="gallery-slider" id="gallerySlider"></div>
+        <button class="gallery-arrow prev" id="galleryPrev" onclick="galleryNav(-1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="gallery-arrow next" id="galleryNext" onclick="galleryNav(1)"><i class="fas fa-chevron-right"></i></button>
+        <div class="gallery-dots" id="galleryDots"></div>
+        <div class="gallery-counter" id="galleryCounter"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-tabs">
+          <div class="modal-tab active" onclick="switchModalTab('details',this)">📋 পণ্য বিবরণ</div>
+          <div class="modal-tab" onclick="switchModalTab('reviews',this)">⭐ রিভিউ <span id="reviewCountBadge" style="background:var(--brand);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;margin-left:4px">0</span></div>
+        </div>
+        <div class="modal-tab-body active" id="modalTabDetails"></div>
+        <div class="modal-tab-body" id="modalTabReviews"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLoginPage" class="admin-login-page hidden">
+  <div class="admin-login-card">
+    <div class="admin-login-logo">Style<span>BD</span></div>
+    <div style="font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px">Admin Panel</div>
+    <div class="admin-login-sub">অ্যাডমিন পাসওয়ার্ড দিন</div>
+    <input class="admin-login-input" type="password" id="adminPass" placeholder="••••••••" onkeyup="if(event.key==='Enter')doLogin()"/>
+    <button class="btn-admin-login" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> প্রবেশ করুন</button>
+    <button class="btn-admin-back" onclick="hideAdminLogin()">← ফিরে যান</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="admin-wrapper">
+  <div class="admin-topbar">
+    <div class="admin-brand">⚡ Style<span>BD</span> Admin</div>
+    <div class="admin-nav-links">
+      <button class="admin-nav-btn active" id="aTab-dash" onclick="switchAdminTab('dash')">📊 ড্যাশবোর্ড</button>
+      <button class="admin-nav-btn" id="aTab-prod" onclick="switchAdminTab('prod')">📦 পণ্য</button>
+      <button class="admin-nav-btn" id="aTab-ord" onclick="switchAdminTab('ord')">🛒 অর্ডার</button>
+      <button class="admin-nav-btn" id="aTab-cms" onclick="switchAdminTab('cms')">🎨 সাইট সেটিংস</button>
+      <button class="admin-nav-btn" onclick="exitAdmin()" style="background:rgba(200,16,46,.25)">🚪 বের হন</button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div id="adminDash">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-ico red"><i class="fas fa-shopping-bag"></i></div><div><div class="stat-lbl">মোট অর্ডার</div><div class="stat-val" id="sOrders">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico green"><i class="fas fa-coins"></i></div><div><div class="stat-lbl">মোট বিক্রয়</div><div class="stat-val" id="sRevenue">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico orange"><i class="fas fa-calendar-day"></i></div><div><div class="stat-lbl">আজকের বিক্রয়</div><div class="stat-val" id="sTodayRevenue">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico yellow"><i class="fas fa-clock"></i></div><div><div class="stat-lbl">পেন্ডিং</div><div class="stat-val" id="sPending">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico blue"><i class="fas fa-truck"></i></div><div><div class="stat-lbl">শিপড</div><div class="stat-val" id="sShipped">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico green"><i class="fas fa-check-double"></i></div><div><div class="stat-lbl">ডেলিভার্ড</div><div class="stat-val" id="sDelivered">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico purple"><i class="fas fa-box-open"></i></div><div><div class="stat-lbl">মোট পণ্য</div><div class="stat-val" id="sProducts">—</div></div></div>
+        <div class="stat-card"><div class="stat-ico red"><i class="fas fa-exclamation-triangle"></i></div><div><div class="stat-lbl">কম স্টক</div><div class="stat-val" id="sLowStock">—</div></div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header"><i class="fas fa-chart-bar" style="color:var(--brand)"></i> গত ৭ দিনের বিক্রয়</div>
+          <div class="chart-body" id="revenueChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><i class="fas fa-chart-pie" style="color:var(--brand)"></i> অর্ডার স্ট্যাটাস</div>
+          <div class="donut-wrap" id="statusDonut" style="padding:20px;height:180px;align-items:center"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="table-card">
+          <div class="tc-header"><div class="tc-title"><i class="fas fa-exclamation-triangle" style="color:#e65100"></i> কম স্টক</div></div>
+          <div class="overflow-x"><table class="data-table"><thead><tr><th>পণ্য</th><th>স্টক</th></tr></thead><tbody id="lowStockTbody"></tbody></table></div>
+        </div>
+        <div class="table-card">
+          <div class="tc-header"><div class="tc-title"><i class="fas fa-clock" style="color:var(--brand)"></i> সাম্প্রতিক অর্ডার</div><button class="btn-add-new" onclick="switchAdminTab('ord')"><i class="fas fa-arrow-right"></i> সব দেখুন</button></div>
+          <div class="overflow-x"><table class="data-table"><thead><tr><th>অর্ডার ID</th><th>গ্রাহক</th><th>মোট</th><th>স্ট্যাটাস</th></tr></thead><tbody id="recentOrdersTbody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+    <div id="adminProd" class="hidden">
+      <div class="table-card">
+        <div class="tc-header">
+          <div class="tc-title"><i class="fas fa-box-open" style="color:var(--brand)"></i> পণ্য ম্যানেজমেন্ট</div>
+          <div class="tc-actions">
+            <input type="text" class="search-box" id="prodSearch" placeholder="পণ্য খুঁজুন..." oninput="filterProdTable()"/>
+            <select class="search-box" id="prodCatFilter" onchange="filterProdTable()" style="min-width:130px">
+              <option value="">সব ক্যাটাগরি</option>
+              <option>পুরুষ-পোশাক</option><option>মহিলা-পোশাক</option><option>শিশু-পোশাক</option>
+              <option>জুতা</option><option>ব্যাগ</option><option>ইলেকট্রনিক্স</option>
+              <option>গৃহস্থালি</option><option>সৌন্দর্য</option><option>খেলাধুলা</option>
+              <option>বই-শিক্ষা</option><option>অফার</option>
+            </select>
+            <button class="btn-add-new" onclick="openProductForm()"><i class="fas fa-plus"></i> নতুন পণ্য</button>
+          </div>
+        </div>
+        <div id="prodBulkBar" class="bulk-bar hidden">
+          <strong id="bulkCount">0</strong> টি নির্বাচিত
+          <button class="btn-action btn-del" onclick="bulkDeleteProducts()"><i class="fas fa-trash"></i> মুছুন</button>
+          <button class="btn-action btn-neutral" onclick="clearBulkSelect()">বাতিল</button>
+        </div>
+        <div class="overflow-x">
+          <table class="data-table">
+            <thead><tr>
+              <th><input type="checkbox" id="selectAllProd" onchange="toggleSelectAllProd()"/></th>
+              <th>ছবি</th><th>নাম</th><th>ক্যাটাগরি</th><th>দাম</th>
+              <th>কালার</th><th>সাইজ</th><th>স্টক</th><th>সেকশন</th><th>অ্যাকশন</th>
+            </tr></thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+        <div id="prodTableEmpty" class="hidden empty-state"><i class="fas fa-box-open"></i><p>কোনো পণ্য নেই</p></div>
+      </div>
+    </div>
+    <div id="adminOrd" class="hidden">
+      <div class="table-card">
+        <div class="tc-header">
+          <div class="tc-title"><i class="fas fa-shopping-cart" style="color:var(--brand)"></i> অর্ডার ম্যানেজমেন্ট</div>
+          <div class="tc-actions">
+            <input type="text" class="search-box" id="ordSearch" placeholder="নাম/ফোন/ID..." oninput="filterAdminOrders()"/>
+            <select class="search-box" id="orderFilter" onchange="filterAdminOrders()">
+              <option value="">সব স্ট্যাটাস</option>
+              <option>Pending</option><option>Processing</option>
+              <option>Shipped</option><option>Delivered</option><option>Cancelled</option>
+            </select>
+            <select class="search-box" id="orderCourierFilter" onchange="filterAdminOrders()">
+              <option value="">সব কুরিয়ার</option>
+            </select>
+          </div>
+        </div>
+        <div id="ordBulkBar" class="bulk-bar hidden">
+          <strong id="ordBulkCount">0</strong> টি নির্বাচিত
+          <select id="bulkStatusSel" class="search-box" style="font-size:.78rem">
+            <option value="">স্ট্যাটাস বদলান</option>
+            <option>Pending</option><option>Processing</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option>
+          </select>
+          <select id="bulkCourierSel" class="search-box" style="font-size:.78rem">
+            <option value="">কুরিয়ার অ্যাসাইন</option>
+          </select>
+          <button class="btn-action btn-edit" onclick="bulkUpdateOrderStatus()"><i class="fas fa-check"></i> প্রয়োগ</button>
+          <button class="btn-action btn-del" onclick="bulkDeleteOrders()"><i class="fas fa-trash"></i> মুছুন</button>
+          <button class="btn-action btn-neutral" onclick="clearOrdBulkSelect()">বাতিল</button>
+        </div>
+        <div class="overflow-x">
+          <table class="data-table">
+            <thead><tr>
+              <th><input type="checkbox" id="selectAllOrd" onchange="toggleSelectAllOrd()"/></th>
+              <th>অর্ডার ID</th><th>গ্রাহক</th><th>ফোন</th><th>জেলা</th>
+              <th>পেমেন্ট</th><th>মোট</th><th>কুরিয়ার</th><th>ট্র্যাকিং</th>
+              <th>স্ট্যাটাস</th><th>তারিখ</th><th>অ্যাকশন</th>
+            </tr></thead>
+            <tbody id="ordTbody"></tbody>
+          </table>
+        </div>
+        <div id="ordTableEmpty" class="hidden empty-state"><i class="fas fa-shopping-cart"></i><p>কোনো অর্ডার নেই</p></div>
+      </div>
+    </div>
+    <div id="adminCms" class="hidden">
+      <div class="settings-tabs">
+        <div class="stab active" onclick="switchSettingsTab('general')">⚙️ সাধারণ</div>
+        <div class="stab" onclick="switchSettingsTab('hero')">🎯 হিরো</div>
+        <div class="stab" onclick="switchSettingsTab('footer')">🔻 ফুটার</div>
+        <div class="stab" onclick="switchSettingsTab('delivery')">🚚 ডেলিভারি</div>
+        <div class="stab" onclick="switchSettingsTab('couriers')">📬 কুরিয়ার</div>
+        <div class="stab" onclick="switchSettingsTab('appearance')">🎨 চেহারা</div>
+      </div>
+      <div class="settings-section active" id="stab-general">
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-store"></i> শপের তথ্য</div>
+          <div class="sc-body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">শপের নাম</label><input class="form-input" id="cms_shopName"/></div>
+              <div class="form-group"><label class="form-label">ট্যাগলাইন</label><input class="form-input" id="cms_shopTagline"/></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">ফোন</label><input class="form-input" id="cms_shopPhone"/></div>
+              <div class="form-group"><label class="form-label">ইমেইল</label><input class="form-input" id="cms_shopEmail"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">ঠিকানা</label><input class="form-input" id="cms_shopAddress"/></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">ফেসবুক URL</label><input class="form-input" id="cms_shopFacebook"/></div>
+              <div class="form-group"><label class="form-label">WhatsApp নম্বর</label><input class="form-input" id="cms_shopWhatsapp"/></div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-bullhorn"></i> অ্যানাউন্সমেন্ট</div>
+          <div class="sc-body">
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div class="tlabel">অ্যানাউন্সমেন্ট চালু</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="cms_announcementActive"/><span class="toggle-slider"></span></label>
+            </div>
+            <div class="form-group" style="margin-top:14px"><label class="form-label">বার্তা</label><input class="form-input" id="cms_announcementText"/></div>
+          </div>
+        </div>
+        <button class="btn-add-new" style="padding:12px 28px" onclick="saveCmsSection('general')"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+      </div>
+      <div class="settings-section" id="stab-hero">
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-image"></i> হিরো সেকশন</div>
+          <div class="sc-body">
+            <div class="form-group"><label class="form-label">ট্যাগ</label><input class="form-input" id="cms_heroTag"/></div>
+            <div class="form-group"><label class="form-label">শিরোনাম</label><input class="form-input" id="cms_heroTitle"/></div>
+            <div class="form-group"><label class="form-label">সাব-টাইটেল</label><textarea class="form-input" id="cms_heroSubtitle" rows="2"></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">বাটন ১</label><input class="form-input" id="cms_heroCTA1"/></div>
+              <div class="form-group"><label class="form-label">বাটন ২</label><input class="form-input" id="cms_heroCTA2"/></div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-add-new" style="padding:12px 28px" onclick="saveCmsSection('hero')"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+      </div>
+      <div class="settings-section" id="stab-footer">
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-align-left"></i> ফুটার</div>
+          <div class="sc-body">
+            <div class="form-group"><label class="form-label">সম্পর্কে</label><textarea class="form-input" id="cms_footerAbout" rows="3"></textarea></div>
+            <div class="form-group"><label class="form-label">কপিরাইট</label><input class="form-input" id="cms_footerCopyright"/></div>
+          </div>
+        </div>
+        <button class="btn-add-new" style="padding:12px 28px" onclick="saveCmsSection('footer')"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+      </div>
+      <div class="settings-section" id="stab-delivery">
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-shipping-fast"></i> ডেলিভারি সেটিংস</div>
+          <div class="sc-body">
+            <div class="alert-box info"><i class="fas fa-info-circle"></i> ঢাকার ভেতরে ও বাইরে আলাদা চার্জ।</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">ঢাকা সিটি (৳)</label><input class="form-input" id="cms_deliveryChargeInDhaka" type="number" placeholder="80"/></div>
+              <div class="form-group"><label class="form-label">ঢাকার বাইরে (৳)</label><input class="form-input" id="cms_deliveryChargeOutDhaka" type="number" placeholder="150"/></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-row-info"><div class="tlabel">WhatsApp অর্ডার</div></div>
+              <label class="toggle-switch"><input type="checkbox" id="cms_whatsappOrderActive"/><span class="toggle-slider"></span></label>
+            </div>
+            <div class="form-group" style="margin-top:12px"><label class="form-label">WhatsApp নম্বর</label><input class="form-input" id="cms_whatsappNumber"/></div>
+          </div>
+        </div>
+        <button class="btn-add-new" style="padding:12px 28px" onclick="saveCmsSection('delivery')"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+      </div>
+      <div class="settings-section" id="stab-couriers">
+        <div class="table-card">
+          <div class="tc-header">
+            <div class="tc-title"><i class="fas fa-truck" style="color:var(--brand)"></i> কুরিয়ার সার্ভিস</div>
+            <button class="btn-add-new" onclick="openCourierForm()"><i class="fas fa-plus"></i> নতুন কুরিয়ার</button>
+          </div>
+          <div id="courierListWrap" style="padding:16px"></div>
+        </div>
+      </div>
+      <div class="settings-section" id="stab-appearance">
+        <div class="settings-card">
+          <div class="sc-header"><i class="fas fa-palette"></i> রঙ ও থিম</div>
+          <div class="sc-body">
+            <div class="form-group">
+              <label class="form-label">প্রাইমারি কালার</label>
+              <div class="color-picker-row">
+                <input type="color" class="color-preview" id="cms_primaryColor" value="#c8102e" oninput="document.getElementById('cms_primaryColorHex').value=this.value;previewPrimaryColor(this.value)"/>
+                <input class="form-input" id="cms_primaryColorHex" placeholder="#c8102e" style="max-width:140px"/>
+              </div>
+            </div>
+            <div class="form-group"><label class="form-label">লোগো URL</label><input class="form-input" id="cms_shopLogo"/></div>
+          </div>
+        </div>
+        <button class="btn-add-new" style="padding:12px 28px" onclick="saveCmsSection('appearance')"><i class="fas fa-save"></i> সংরক্ষণ করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Form Modal -->
+<div id="productFormModal" class="form-modal hidden">
+  <div class="form-modal-card">
+    <div class="fm-header">
+      <div class="fm-title" id="pfTitle">নতুন পণ্য যোগ করুন</div>
+      <button class="fm-close" onclick="closeProductForm()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="fm-body">
+      <input type="hidden" id="pfId"/>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">পণ্যের নাম *</label><input class="form-input" id="pfName"/></div>
+        <div class="form-group"><label class="form-label">ক্যাটাগরি</label>
+          <select class="form-input" id="pfCategory">
+            <option value="">ক্যাটাগরি বেছে নিন</option>
+            <option>পুরুষ-পোশাক</option><option>মহিলা-পোশাক</option><option>শিশু-পোশাক</option>
+            <option>জুতা</option><option>ব্যাগ</option><option>ইলেকট্রনিক্স</option>
+            <option>গৃহস্থালি</option><option>সৌন্দর্য</option><option>খেলাধুলা</option>
+            <option>বই-শিক্ষা</option><option>অফার</option><option>অন্যান্য</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">বিবরণ</label><textarea class="form-input" id="pfDesc" rows="2"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">মূল্য (৳) *</label><input class="form-input" id="pfPrice" type="number"/></div>
+        <div class="form-group"><label class="form-label">ছাড়ের মূল্য (৳)</label><input class="form-input" id="pfDiscount" type="number"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">স্টক</label><input class="form-input" id="pfStock" type="number"/></div>
+        <div class="form-group"><label class="form-label">সাব-ক্যাটাগরি</label><input class="form-input" id="pfSubCat"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">ছবির URL (প্রতি লাইনে একটি)</label><textarea class="form-input" id="pfImages" rows="3" placeholder="https://example.com/img1.jpg"></textarea></div>
+      <div class="form-group"><label class="form-label">কালার</label>
+        <div class="color-input-row" id="colorInputRow"><button type="button" class="btn-add-color" onclick="addColorEntry()"><i class="fas fa-plus"></i></button></div>
+      </div>
+      <div class="form-group"><label class="form-label">সাইজ</label>
+        <div class="size-presets" id="sizePresets">
+          <button type="button" class="size-preset-btn" data-size="XS" onclick="toggleSizePreset(this)">XS</button>
+          <button type="button" class="size-preset-btn" data-size="S" onclick="toggleSizePreset(this)">S</button>
+          <button type="button" class="size-preset-btn" data-size="M" onclick="toggleSizePreset(this)">M</button>
+          <button type="button" class="size-preset-btn" data-size="L" onclick="toggleSizePreset(this)">L</button>
+          <button type="button" class="size-preset-btn" data-size="XL" onclick="toggleSizePreset(this)">XL</button>
+          <button type="button" class="size-preset-btn" data-size="XXL" onclick="toggleSizePreset(this)">XXL</button>
+          <button type="button" class="size-preset-btn" data-size="3XL" onclick="toggleSizePreset(this)">3XL</button>
+          <button type="button" class="size-preset-btn" data-size="ফ্রি সাইজ" onclick="toggleSizePreset(this)">ফ্রি</button>
+        </div>
+        <div class="tag-input-wrap" id="sizeTagWrap">
+          <div class="tag-input-inner" id="sizeTagInput" contenteditable="true" onkeydown="handleSizeInput(event)" placeholder="কাস্টম সাইজ..."></div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">ট্যাগ</label>
+        <div class="tag-input-wrap" id="tagWrap" onclick="document.getElementById('tagInput').focus()">
+          <input class="tag-input-inner" type="text" id="tagInput" placeholder="ট্যাগ লিখে Enter চাপুন" onkeydown="handleTagInput(event)"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">হোমপেজ সেকশন</label>
+        <div class="home-section-select" id="hsSelectorWrap">
+          <label class="hs-option hs-option-none active" data-val=""><input type="radio" name="pfHomeSection" value=""/><span class="hs-emoji">🚫</span><span class="hs-label">কোনোটি নয়</span></label>
+          <label class="hs-option" data-val="featured"><input type="radio" name="pfHomeSection" value="featured"/><span class="hs-emoji">⭐</span><span class="hs-label">সেরা পণ্য</span></label>
+          <label class="hs-option" data-val="new"><input type="radio" name="pfHomeSection" value="new"/><span class="hs-emoji">🆕</span><span class="hs-label">নতুন পণ্য</span></label>
+          <label class="hs-option" data-val="popular"><input type="radio" name="pfHomeSection" value="popular"/><span class="hs-emoji">🔥</span><span class="hs-label">জনপ্রিয়</span></label>
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="pfFeatured" style="width:18px;height:18px;cursor:pointer;accent-color:var(--brand)"/>
+        <label for="pfFeatured" style="font-size:.875rem;font-weight:600;cursor:pointer">ফিচার্ড পণ্য</label>
+      </div>
+    </div>
+    <div class="fm-footer">
+      <button class="btn-action btn-del" onclick="closeProductForm()" style="padding:9px 18px">বাতিল</button>
+      <button class="btn-action btn-edit" onclick="saveProductForm()" style="padding:9px 22px"><i class="fas fa-save"></i> সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div id="orderDetailModal" class="order-detail-modal hidden">
+  <div class="order-detail-card">
+    <div class="fm-header">
+      <div class="fm-title">অর্ডার বিস্তারিত</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-action btn-print" onclick="printInvoice()"><i class="fas fa-print"></i> প্রিন্ট</button>
+        <button class="fm-close" onclick="closeOrderDetail()"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="od-tabs">
+      <div class="od-tab active" onclick="switchOdTab('info')">📋 তথ্য</div>
+      <div class="od-tab" onclick="switchOdTab('courier')">🚚 কুরিয়ার</div>
+      <div class="od-tab" onclick="switchOdTab('timeline')">📅 টাইমলাইন</div>
+      <div class="od-tab" onclick="switchOdTab('actions')">⚙️ অ্যাকশন</div>
+    </div>
+    <div class="od-tab-body active" id="odTab-info"></div>
+    <div class="od-tab-body" id="odTab-courier"></div>
+    <div class="od-tab-body" id="odTab-timeline"></div>
+    <div class="od-tab-body" id="odTab-actions"></div>
+  </div>
+</div>
+
+<!-- Courier Form -->
+<div id="courierFormModal" class="form-modal hidden">
+  <div class="form-modal-card" style="max-width:480px">
+    <div class="fm-header"><div class="fm-title">নতুন কুরিয়ার</div><button class="fm-close" onclick="closeCourierForm()"><i class="fas fa-times"></i></button></div>
+    <div class="fm-body">
+      <div class="form-group"><label class="form-label">নাম *</label><input class="form-input" id="cfName" placeholder="যেমন: Pathao, Steadfast"/></div>
+      <div class="form-group"><label class="form-label">ট্র্যাকিং URL</label><input class="form-input" id="cfUrl" placeholder="https://tracker.example.com/track?id="/></div>
+    </div>
+    <div class="fm-footer">
+      <button class="btn-action btn-del" onclick="closeCourierForm()" style="padding:9px 18px">বাতিল</button>
+      <button class="btn-action btn-edit" onclick="saveCourierForm()" style="padding:9px 22px"><i class="fas fa-save"></i> সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  LOADING OVERLAY — সঠিক সংস্করণ
+// ═══════════════════════════════════════════════
+function showLoadingOverlay(show) {
+  const el = document.getElementById('loadingOverlay');
+  if (!el) return;
+  el.style.display = show ? 'flex' : 'none';
+}
+
+function hideInitialLoader() {
+  const l = document.getElementById('pageLoader');
+  if (!l) return;
+  l.style.opacity = '0';
+  setTimeout(() => { l.style.display = 'none'; }, 400);
+}
+
+// ═══════════════════════════════════════════════
+//  DELIVERY CONFIG
+// ═══════════════════════════════════════════════
+const DELIVERY_CONFIG = {
+  insideDhaka: ['ঢাকা', 'গাজীপুর', 'নারায়ণগঞ্জ'],
+  chargeInside: 80,
+  chargeOutside: 150,
+};
+function getDeliveryCharge(district) {
+  if (!district) return DELIVERY_CONFIG.chargeOutside;
+  return DELIVERY_CONFIG.insideDhaka.includes(district) ? DELIVERY_CONFIG.chargeInside : DELIVERY_CONFIG.chargeOutside;
+}
+function updateDeliveryZone() {
+  const district = document.getElementById('cDistrict').value;
+  const box = document.getElementById('deliveryZoneInfo');
+  const txt = document.getElementById('deliveryZoneText');
+  if (!district) { box.classList.add('hidden'); renderCheckoutTotals(); return; }
+  const charge = getDeliveryCharge(district);
+  const isInside = DELIVERY_CONFIG.insideDhaka.includes(district);
+  txt.textContent = isInside ? `ঢাকা সিটির ভেতরে: ৳${charge}` : `ঢাকার বাইরে: ৳${charge}`;
+  box.classList.remove('hidden');
+  box.style.background = isInside ? '#e8f5e9' : '#fff8e1';
+  box.style.borderColor = isInside ? '#a5d6a7' : '#ffe082';
+  box.querySelector('i').style.color = isInside ? '#2e7d32' : '#f57f17';
+  renderCheckoutTotals();
+}
+
+// ═══════════════════════════════════════════════
+//  REVIEWS — localStorage ভিত্তিক
+// ═══════════════════════════════════════════════
+function getReviews(pid) {
+  try {
+    const raw = localStorage.getItem('sbd_reviews_' + pid);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e) { return []; }
+}
+function saveReviews(pid, rv) {
+  try { localStorage.setItem('sbd_reviews_' + pid, JSON.stringify(rv)); } catch(e) {}
+}
+function addReview(pid, review) {
+  const rv = getReviews(pid);
+  rv.unshift({ ...review, id: Date.now(), date: new Date().toLocaleDateString('bn-BD') });
+  saveReviews(pid, rv);
+  return rv;
+}
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let STATE = {
+  products: [], allProducts: [],
+  cart: [],
+  config: { deliveryCharge: 80, shopName: 'StyleBD', currency: '৳' },
+  siteSettings: {},
+  activeCategory: 'all', activePage: 'homePage',
+  paymentMethod: 'cod',
+  modalProduct: null, modalQty: 1, selectedColor: null, selectedSize: null,
+  galleryIdx: 0,
+  filters: { colors: [], sizes: [], instock: false, sale: false, featured: false },
+  allOrders: [], allCouriers: [],
+  viewMode: 'grid', lastOrderId: null,
+  selectedProds: new Set(), selectedOrds: new Set(),
+  currentOrderDetail: null,
+};
+try { STATE.cart = JSON.parse(localStorage.getItem('sbd_cart') || '[]') || []; } catch(e) { STATE.cart = []; }
+
+let formColors = [], formSizes = [], formTags = [];
+
+// ═══════════════════════════════════════════════
+//  DEMO PRODUCTS
+// ═══════════════════════════════════════════════
+const DEMO_PRODUCTS = [
+  { id: 'PRD001', name: 'প্রিমিয়াম পাঞ্জাবি', description: 'উচ্চমানের কটন কাপড়ে তৈরি। যেকোনো অনুষ্ঠানের জন্য উপযুক্ত।', price: 1200, discountPrice: 950, images: ['https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=500', 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500'], category: 'পুরুষ-পোশাক', subCategory: 'পাঞ্জাবি', colors: [{ hex: '#ffffff', name: 'সাদা' }, { hex: '#90caf9', name: 'নীল' }, { hex: '#a5d6a7', name: 'সবুজ' }], sizes: ['S', 'M', 'L', 'XL', 'XXL'], tags: ['পাঞ্জাবি', 'ঈদ'], stock: 45, featured: true, createdAt: '01/01/2025', homeSection: 'featured' },
+  { id: 'PRD002', name: 'লেডিস শাড়ি', description: 'তাঁতের খাঁটি সুতি শাড়ি। হালকা ও আরামদায়ক।', price: 2500, discountPrice: 1999, images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500'], category: 'মহিলা-পোশাক', subCategory: 'শাড়ি', colors: [{ hex: '#f48fb1', name: 'গোলাপি' }, { hex: '#ce93d8', name: 'বেগুনি' }], sizes: ['ফ্রি সাইজ'], tags: ['শাড়ি', 'তাঁত'], stock: 28, featured: true, createdAt: '02/01/2025', homeSection: 'featured' },
+  { id: 'PRD003', name: 'স্পোর্টস স্নিকার', description: 'হালকা আরামদায়ক স্পোর্টস জুতা।', price: 1800, discountPrice: 0, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500'], category: 'জুতা', subCategory: 'স্নিকার', colors: [{ hex: '#1a1a1a', name: 'কালো' }, { hex: '#ffffff', name: 'সাদা' }], sizes: ['39', '40', '41', '42', '43', '44'], tags: ['জুতা', 'স্পোর্টস'], stock: 15, featured: false, createdAt: '03/01/2025', homeSection: 'new' },
+  { id: 'PRD004', name: 'স্মার্টফোন কভার', description: 'প্রিমিয়াম লেদার ফিনিশ। সব মডেলে পাওয়া যায়।', price: 350, discountPrice: 280, images: ['https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=500'], category: 'ইলেকট্রনিক্স', subCategory: 'অ্যাক্সেসরিজ', colors: [{ hex: '#1a1a1a', name: 'কালো' }, { hex: '#795548', name: 'বাদামি' }], sizes: [], tags: ['ফোন কভার'], stock: 80, featured: false, createdAt: '04/01/2025', homeSection: 'popular' },
+  { id: 'PRD005', name: 'হ্যান্ডব্যাগ', description: 'PU লেদার হ্যান্ডব্যাগ। একাধিক পকেট।', price: 1500, discountPrice: 1200, images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500'], category: 'ব্যাগ', colors: [{ hex: '#1a1a1a', name: 'কালো' }, { hex: '#e91e63', name: 'গোলাপি' }], sizes: [], tags: ['হ্যান্ডব্যাগ'], stock: 22, featured: true, createdAt: '05/01/2025', homeSection: 'popular' },
+  { id: 'PRD006', name: 'শিশুর টি-শার্ট সেট', description: 'নরম কটন। ৩ পিস সেট।', price: 600, discountPrice: 499, images: ['https://images.unsplash.com/photo-1519278409-1f56fdda7fe5?w=500'], category: 'শিশু-পোশাক', colors: [{ hex: '#f8bbd0', name: 'গোলাপি' }, { hex: '#bbdefb', name: 'নীল' }], sizes: ['1-2Y', '2-3Y', '3-4Y', '4-5Y'], tags: ['শিশু', 'কটন'], stock: 35, featured: false, createdAt: '06/01/2025', homeSection: 'new' },
+];
+
+const IS_GAS = typeof google !== 'undefined' && typeof google.script !== 'undefined';
+
+// ═══════════════════════════════════════════════
+//  DEMO STORE — localStorage ভিত্তিক
+// ═══════════════════════════════════════════════
+const DEMO_STORE = {
+  get products() { try { const d = localStorage.getItem('sbd_demo_products'); return d ? JSON.parse(d) : JSON.parse(JSON.stringify(DEMO_PRODUCTS)); } catch(e) { return JSON.parse(JSON.stringify(DEMO_PRODUCTS)); } },
+  set products(v) { try { localStorage.setItem('sbd_demo_products', JSON.stringify(v)); } catch(e) {} },
+  get orders() { try { const d = localStorage.getItem('sbd_demo_orders'); return d ? JSON.parse(d) : []; } catch(e) { return []; } },
+  set orders(v) { try { localStorage.setItem('sbd_demo_orders', JSON.stringify(v)); } catch(e) {} },
+  get settings() { try { const d = localStorage.getItem('sbd_demo_settings'); return d ? JSON.parse(d) : {}; } catch(e) { return {}; } },
+  set settings(v) { try { localStorage.setItem('sbd_demo_settings', JSON.stringify(v)); } catch(e) {} },
+  get couriers() { try { const d = localStorage.getItem('sbd_demo_couriers'); return d ? JSON.parse(d) : []; } catch(e) { return []; } },
+  set couriers(v) { try { localStorage.setItem('sbd_demo_couriers', JSON.stringify(v)); } catch(e) {} },
+};
+
+// ═══════════════════════════════════════════════
+//  DEMO FUNCTIONS
+// ═══════════════════════════════════════════════
+function _demoSafeParseItems(items) {
+  if (Array.isArray(items)) return items;
+  if (typeof items === 'string') { try { return JSON.parse(items); } catch(e) { return []; } }
+  return [];
+}
+
+const DEMO_FN = {
+  getProducts: () => DEMO_STORE.products,
+  getConfig: () => ({ deliveryCharge: 80, shopName: 'StyleBD', currency: '৳' }),
+  getSiteSettings: () => {
+    const defaults = { announcementActive: 'true', announcementText: '🎉 বিশেষ অফার চলছে!', shopName: 'StyleBD', shopTagline: 'বাংলাদেশের সেরা অনলাইন শপ', shopPhone: '01700000000', shopEmail: 'info@stylebd.com', shopAddress: 'ঢাকা, বাংলাদেশ', shopFacebook: '', shopWhatsapp: '', heroTitle: 'বাংলাদেশের<br/><em>সেরা অনলাইন শপ</em>', heroSubtitle: 'হাজারো পণ্য একটি জায়গায়। দ্রুত ডেলিভারি, সেরা দাম।', heroCTA1: 'এখনই কিনুন', heroCTA2: 'অফার দেখুন', footerAbout: 'আমরা সেরা মানের পণ্য সাশ্রয়ী মূল্যে সরবরাহ করি।', footerCopyright: '© 2025 StyleBD.', deliveryChargeInDhaka: '80', deliveryChargeOutDhaka: '150', primaryColor: '#c8102e', whatsappOrderActive: 'false', whatsappNumber: '' };
+    return { success: true, data: Object.assign({}, defaults, DEMO_STORE.settings) };
+  },
+  updateSiteSettings: (u) => { const s = DEMO_STORE.settings; Object.assign(s, u); DEMO_STORE.settings = s; return { success: true }; },
+  adminLogin: (pass) => pass === 'admin123' ? { success: true } : { success: false, error: 'পাসওয়ার্ড সঠিক নয়!' },
+  addProduct: (p) => {
+    const id = 'PRD' + Date.now();
+    const prods = DEMO_STORE.products;
+    prods.push({ ...p, id, createdAt: new Date().toLocaleDateString('en-GB') });
+    DEMO_STORE.products = prods;
+    return { success: true, id };
+  },
+  updateProduct: (p) => {
+    const prods = DEMO_STORE.products;
+    const i = prods.findIndex(x => x.id === p.id);
+    if (i >= 0) prods[i] = p;
+    DEMO_STORE.products = prods;
+    return { success: true };
+  },
+  deleteProduct: (id) => {
+    DEMO_STORE.products = DEMO_STORE.products.filter(p => p.id !== id);
+    return { success: true };
+  },
+  placeOrder: (data) => {
+    const orderId = 'ORD' + Date.now();
+    const subtotal = Number(data.subtotal) || 0;
+    const deliveryCharge = Number(data.deliveryCharge) || 80;
+    const order = {
+      orderId, customerName: data.customerName || '', phone: data.phone || '',
+      address: data.address || '', district: data.district || '', thana: data.thana || '',
+      paymentMethod: data.paymentMethod || '', bKashNumber: data.bKashNumber || '',
+      items: data.items || [], subtotal, deliveryCharge, total: subtotal + deliveryCharge,
+      status: 'Pending', note: data.note || '',
+      orderDate: new Date().toLocaleString('en-GB'),
+      courierName: '', trackingNumber: '', courierStatus: '',
+      shippedDate: '', deliveredDate: '', internalNote: '', printCount: 0
+    };
+    const orders = DEMO_STORE.orders;
+    orders.push(order);
+    DEMO_STORE.orders = orders;
+    return { success: true, orderId, total: subtotal + deliveryCharge };
+  },
+  getAllOrders: () => {
+    return DEMO_STORE.orders.map(o => ({
+      ...o,
+      items: _demoSafeParseItems(o.items),
+      subtotal: Number(o.subtotal) || 0,
+      deliveryCharge: Number(o.deliveryCharge) || 80,
+      total: Number(o.total) || 0,
+    }));
+  },
+  updateOrderStatus: (orderId, status) => {
+    const orders = DEMO_STORE.orders;
+    const o = orders.find(x => x.orderId === orderId);
+    if (o) {
+      o.status = status;
+      const now = new Date().toLocaleString('en-GB');
+      if (status === 'Shipped' && !o.shippedDate) o.shippedDate = now;
+      if (status === 'Delivered' && !o.deliveredDate) o.deliveredDate = now;
+    }
+    DEMO_STORE.orders = orders;
+    return { success: true };
+  },
+  updateOrderCourier: (orderId, data) => {
+    const orders = DEMO_STORE.orders;
+    const o = orders.find(x => x.orderId === orderId);
+    if (o) Object.assign(o, data);
+    DEMO_STORE.orders = orders;
+    return { success: true };
+  },
+  deleteOrder: (orderId) => {
+    DEMO_STORE.orders = DEMO_STORE.orders.filter(o => o.orderId !== orderId);
+    return { success: true };
+  },
+  getCouriers: () => ({ success: true, data: DEMO_STORE.couriers }),
+  addCourier: (data) => {
+    const cs = DEMO_STORE.couriers;
+    cs.push({ id: 'COU' + Date.now(), name: data.name, trackingUrl: data.trackingUrl || '', isActive: true, createdAt: new Date().toLocaleString('en-GB') });
+    DEMO_STORE.couriers = cs;
+    return { success: true };
+  },
+  deleteCourier: (id) => {
+    DEMO_STORE.couriers = DEMO_STORE.couriers.filter(c => c.id !== id);
+    return { success: true };
+  },
+  getDashboardStats: () => {
+    const orders = DEMO_FN.getAllOrders();
+    const products = DEMO_STORE.products;
+    const totalRevenue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
+    const deliveredRevenue = orders.filter(o => o.status === 'Delivered').reduce((s, o) => s + Number(o.total || 0), 0);
+    const statusCount = {};
+    orders.forEach(o => { statusCount[o.status] = (statusCount[o.status] || 0) + 1; });
+    const now = new Date();
+    const daily = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now); d.setDate(d.getDate() - i);
+      daily[d.toLocaleDateString('en-GB')] = 0;
+    }
+    orders.forEach(o => {
+      if (!o.orderDate) return;
+      const parts = o.orderDate.split(',')[0].trim();
+      if (daily.hasOwnProperty(parts)) daily[parts] += Number(o.total || 0);
+    });
+    const todayStr = new Date().toLocaleDateString('en-GB');
+    const todayOrders = orders.filter(o => o.orderDate && (o.orderDate.split(',')[0].trim() === todayStr || o.orderDate.split(' ')[0] === todayStr));
+    const todayRevenue = todayOrders.reduce((s, o) => s + Number(o.total || 0), 0);
+    const lowStock = products.filter(p => p.stock > 0 && p.stock <= 5);
+    return {
+      totalOrders: orders.length, totalRevenue, deliveredRevenue,
+      totalProducts: products.length, statusCount, dailyRevenue: daily,
+      featuredCount: products.filter(p => p.featured).length,
+      todayOrders: todayOrders.length, todayRevenue,
+      pendingOrders: statusCount['Pending'] || 0,
+      processingOrders: statusCount['Processing'] || 0,
+      shippedOrders: statusCount['Shipped'] || 0,
+      deliveredOrders: statusCount['Delivered'] || 0,
+      cancelledOrders: statusCount['Cancelled'] || 0,
+      lowStockCount: lowStock.length,
+      lowStockItems: lowStock.map(p => ({ id: p.id, name: p.name, stock: p.stock })),
+      avgOrderValue: orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0,
+      recentOrders: [...orders].reverse().slice(0, 8),
+    };
+  },
+  incrementPrintCount: (orderId) => {
+    const orders = DEMO_STORE.orders;
+    const o = orders.find(x => x.orderId === orderId);
+    if (o) o.printCount = (Number(o.printCount) || 0) + 1;
+    DEMO_STORE.orders = orders;
+    return { success: true };
+  },
+  bulkUpdateOrders: (orderIds, updates) => {
+    const orders = DEMO_STORE.orders;
+    const now = new Date().toLocaleString('en-GB');
+    orders.forEach(o => {
+      if (orderIds.includes(o.orderId)) {
+        if (updates.status) {
+          o.status = updates.status;
+          if (updates.status === 'Shipped' && !o.shippedDate) o.shippedDate = now;
+          if (updates.status === 'Delivered' && !o.deliveredDate) o.deliveredDate = now;
+        }
+        if (updates.courierName) o.courierName = updates.courierName;
+      }
+    });
+    DEMO_STORE.orders = orders;
+    return { success: true, updated: orderIds.length };
+  },
+};
+
+// ═══════════════════════════════════════════════
+//  GAS BRIDGE
+// ═══════════════════════════════════════════════
+const GAS = {
+  run(fn, args, successCb, failCb) {
+    if (IS_GAS) {
+      const errHandler = failCb || ((e) => showToast((e && e.message) || 'ত্রুটি হয়েছে', 'error'));
+      const runner = google.script.run.withSuccessHandler(successCb).withFailureHandler(errHandler);
+      const a = args || [];
+      const fnMap = {
+        'getProducts': () => runner.getProducts(),
+        'getConfig': () => runner.getConfig(),
+        'getSiteSettings': () => runner.getSiteSettings(),
+        'updateSiteSettings': () => runner.updateSiteSettings(a[0]),
+        'adminLogin': () => runner.adminLogin(a[0]),
+        'addProduct': () => runner.addProduct(a[0]),
+        'updateProduct': () => runner.updateProduct(a[0]),
+        'deleteProduct': () => runner.deleteProduct(a[0]),
+        'placeOrder': () => runner.placeOrder(a[0]),
+        'getAllOrders': () => runner.getAllOrders(),
+        'updateOrderStatus': () => runner.updateOrderStatus(a[0], a[1]),
+        'updateOrderCourier': () => runner.updateOrderCourier(a[0], a[1]),
+        'deleteOrder': () => runner.deleteOrder(a[0]),
+        'getCouriers': () => runner.getCouriers(),
+        'addCourier': () => runner.addCourier(a[0]),
+        'deleteCourier': () => runner.deleteCourier(a[0]),
+        'getDashboardStats': () => runner.getDashboardStats(),
+        'incrementPrintCount': () => runner.incrementPrintCount(a[0]),
+        'bulkUpdateOrders': () => runner.bulkUpdateOrders(a[0], a[1]),
+      };
+      if (fnMap[fn]) fnMap[fn]();
+      else if (failCb) failCb(new Error('Unknown function: ' + fn));
+    } else {
+      setTimeout(() => {
+        try {
+          const result = DEMO_FN[fn] ? DEMO_FN[fn](...(args || [])) : null;
+          successCb(result);
+        } catch (e) {
+          if (failCb) failCb(e);
+          else showToast((e && e.message) || 'ত্রুটি', 'error');
+        }
+      }, 200);
+    }
+  }
+};
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.onload = function () {
+  buildMobileCatList();
+  initHSSelectorListeners();
+  GAS.run('getSiteSettings', [], res => { if (res && res.success) applySettings(res.data); });
+  GAS.run('getConfig', [], c => { if (c) STATE.config = c; });
+  GAS.run('getProducts', [], data => {
+    STATE.products = STATE.allProducts = Array.isArray(data) ? data : [];
+    buildSidebarFilters();
+    renderHomeSections();
+    renderShop(STATE.products);
+    updateCartUI();
+    hideInitialLoader();
+  }, () => {
+    STATE.products = STATE.allProducts = JSON.parse(JSON.stringify(DEMO_PRODUCTS));
+    buildSidebarFilters();
+    renderHomeSections();
+    renderShop(STATE.products);
+    updateCartUI();
+    hideInitialLoader();
+    showToast('ডেমো মোডে চলছে', 'info');
+  });
+};
+
+// ═══════════════════════════════════════════════
+//  SETTINGS APPLY
+// ═══════════════════════════════════════════════
+function applySettings(s) {
+  STATE.siteSettings = s;
+  if (s.announcementActive === 'true' && s.announcementText) {
+    document.getElementById('announcementText').textContent = s.announcementText;
+    document.getElementById('announcementBar').style.display = 'block';
+  }
+  const setEl = (id, val, html = false) => { const el = document.getElementById(id); if (el) { if (html) el.innerHTML = val; else el.textContent = val; } };
+  if (s.heroTitle) setEl('heroTitle', s.heroTitle, true);
+  if (s.heroSubtitle) setEl('heroSubtitle', s.heroSubtitle);
+  if (s.heroCTA1) { const b = document.getElementById('heroCTA1Btn'); if (b) b.innerHTML = `<i class="fas fa-shopping-bag"></i> ${s.heroCTA1}`; }
+  if (s.heroCTA2) { const b = document.getElementById('heroCTA2Btn'); if (b) b.innerHTML = `<i class="fas fa-fire"></i> ${s.heroCTA2}`; }
+  if (s.footerAbout) setEl('footerAbout', s.footerAbout);
+  if (s.footerCopyright) setEl('footerBottom', s.footerCopyright);
+  if (s.shopPhone) setEl('footerPhone', s.shopPhone);
+  if (s.shopEmail) setEl('footerEmail', s.shopEmail);
+  if (s.shopAddress) setEl('footerAddress', s.shopAddress);
+  if (s.shopFacebook) { const a = document.getElementById('footerFbLink'); if (a) a.href = s.shopFacebook; }
+  if (s.shopWhatsapp) { const a = document.getElementById('footerWaLink'); if (a) a.href = 'https://wa.me/' + s.shopWhatsapp.replace(/\D/g, ''); }
+  if (s.primaryColor) document.documentElement.style.setProperty('--brand', s.primaryColor);
+  if (s.deliveryChargeInDhaka) DELIVERY_CONFIG.chargeInside = Number(s.deliveryChargeInDhaka);
+  if (s.deliveryChargeOutDhaka) DELIVERY_CONFIG.chargeOutside = Number(s.deliveryChargeOutDhaka);
+}
+
+// ═══════════════════════════════════════════════
+//  MOBILE NAV
+// ═══════════════════════════════════════════════
+const CAT_LIST = [
+  { key: 'all', emoji: '🏪', label: 'সব পণ্য' }, { key: 'পুরুষ-পোশাক', emoji: '👔', label: 'পুরুষ পোশাক' },
+  { key: 'মহিলা-পোশাক', emoji: '👗', label: 'মহিলা পোশাক' }, { key: 'শিশু-পোশাক', emoji: '🧒', label: 'শিশু পোশাক' },
+  { key: 'জুতা', emoji: '👟', label: 'জুতা' }, { key: 'ব্যাগ', emoji: '👜', label: 'ব্যাগ' },
+  { key: 'ইলেকট্রনিক্স', emoji: '📱', label: 'ইলেকট্রনিক্স' }, { key: 'গৃহস্থালি', emoji: '🏠', label: 'গৃহস্থালি' },
+  { key: 'সৌন্দর্য', emoji: '💄', label: 'সৌন্দর্য' }, { key: 'খেলাধুলা', emoji: '⚽', label: 'খেলাধুলা' },
+  { key: 'বই-শিক্ষা', emoji: '📚', label: 'বই ও শিক্ষা' }, { key: 'অফার', emoji: '🔥', label: 'বিশেষ অফার' },
+];
+function buildMobileCatList() {
+  document.getElementById('mobileCatList').innerHTML = CAT_LIST.map(c =>
+    `<div class="mobile-cat-item${STATE.activeCategory === c.key ? ' active' : ''}" data-cat="${c.key}" onclick="selectCategoryMobile('${c.key}',this)"><span class="emoji">${c.emoji}</span>${c.label}</div>`
+  ).join('');
+}
+function openMobileMenu() { document.getElementById('mobileNavOverlay').classList.remove('hidden'); document.getElementById('mobileNavDrawer').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+function closeMobileMenu() { document.getElementById('mobileNavOverlay').classList.add('hidden'); document.getElementById('mobileNavDrawer').classList.add('hidden'); document.body.style.overflow = ''; }
+function selectCategoryMobile(cat, el) { closeMobileMenu(); document.querySelectorAll('.mobile-cat-item').forEach(i => i.classList.remove('active')); if (el) el.classList.add('active'); selectCategory(cat, null); }
+function handleMobileSearch() { const q = document.getElementById('mobileSearch').value; document.getElementById('globalSearch').value = q; applyFilters(); if (q && STATE.activePage !== 'shopPage') { closeMobileMenu(); showPage('shopPage'); } }
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById(id);
+  if (pg) pg.classList.add('active');
+  STATE.activePage = id;
+  window.scrollTo(0, 0);
+  if (id === 'checkoutPage') renderCheckoutPage();
+}
+function goHome() {
+  showPage('homePage');
+  document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('active'));
+  const el = document.querySelector('[data-cat="all"]');
+  if (el) el.classList.add('active');
+  STATE.activeCategory = 'all';
+}
+function selectCategory(cat, el) {
+  STATE.activeCategory = cat;
+  document.querySelectorAll('.cat-item').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else { const f = document.querySelector(`[data-cat="${cat}"]`); if (f) f.classList.add('active'); }
+  document.querySelectorAll('.mobile-cat-item').forEach(i => i.classList.toggle('active', i.dataset.cat === cat));
+  applyFilters();
+  showPage('shopPage');
+}
+
+// ═══════════════════════════════════════════════
+//  SEARCH & FILTERS
+// ═══════════════════════════════════════════════
+function handleGlobalSearch() {
+  const q = document.getElementById('globalSearch').value;
+  document.getElementById('searchClear').style.display = q ? 'block' : 'none';
+  applyFilters();
+  if (q && STATE.activePage !== 'shopPage') showPage('shopPage');
+}
+function clearSearch() { document.getElementById('globalSearch').value = ''; document.getElementById('searchClear').style.display = 'none'; applyFilters(); }
+function buildSidebarFilters() {
+  const allColors = new Set(), allSizes = new Set();
+  STATE.products.forEach(p => {
+    (p.colors || []).forEach(c => allColors.add(JSON.stringify(c)));
+    (p.sizes || []).forEach(s => allSizes.add(s));
+  });
+  const cWrap = document.getElementById('sidebarColorFilter');
+  if (cWrap) {
+    cWrap.innerHTML = '';
+    [...allColors].slice(0, 12).forEach(cs => {
+      let c; try { c = JSON.parse(cs); } catch(e) { c = { hex: cs, name: cs }; }
+      const el = document.createElement('button');
+      el.className = 'filter-chip';
+      el.style.cssText = 'display:flex;align-items:center;gap:6px';
+      el.innerHTML = `<span style="width:12px;height:12px;border-radius:50%;background:${c.hex || c};display:inline-block;border:1px solid rgba(0,0,0,.15)"></span>${c.name || c}`;
+      el.dataset.color = c.name || c;
+      el.onclick = () => toggleSidebarFilter(el, 'color', c.name || c);
+      cWrap.appendChild(el);
+    });
+  }
+  const sWrap = document.getElementById('sidebarSizeFilter');
+  if (sWrap) {
+    sWrap.innerHTML = '';
+    [...allSizes].slice(0, 14).forEach(s => {
+      const el = document.createElement('button');
+      el.className = 'filter-chip'; el.textContent = s; el.dataset.size = s;
+      el.onclick = () => toggleSidebarFilter(el, 'size', s);
+      sWrap.appendChild(el);
+    });
+  }
+}
+function toggleSidebarFilter(el, type, val) {
+  el.classList.toggle('active');
+  if (type === 'color') { const i = STATE.filters.colors.indexOf(val); i >= 0 ? STATE.filters.colors.splice(i, 1) : STATE.filters.colors.push(val); }
+  else { const i = STATE.filters.sizes.indexOf(val); i >= 0 ? STATE.filters.sizes.splice(i, 1) : STATE.filters.sizes.push(val); }
+  applyFilters();
+}
+function toggleFilterChip(el, type) { el.classList.toggle('active'); STATE.filters[type] = el.classList.contains('active'); applyFilters(); }
+function applyFilters() {
+  const q = (document.getElementById('globalSearch').value || '').toLowerCase();
+  const sort = document.getElementById('sortSel') ? document.getElementById('sortSel').value : '';
+  const pMin = Number(document.getElementById('priceMin') ? document.getElementById('priceMin').value : 0) || 0;
+  const pMax = Number(document.getElementById('priceMax') ? document.getElementById('priceMax').value : 0) || Infinity;
+  let items = [...STATE.products];
+  if (STATE.activeCategory !== 'all') items = items.filter(p => p.category === STATE.activeCategory);
+  if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q)));
+  if (pMin) items = items.filter(p => effectivePrice(p) >= pMin);
+  if (pMax < Infinity) items = items.filter(p => effectivePrice(p) <= pMax);
+  if (STATE.filters.colors.length) items = items.filter(p => (p.colors || []).some(c => STATE.filters.colors.includes(c.name || c)));
+  if (STATE.filters.sizes.length) items = items.filter(p => (p.sizes || []).some(s => STATE.filters.sizes.includes(s)));
+  if (STATE.filters.instock) items = items.filter(p => p.stock > 0);
+  if (STATE.filters.sale) items = items.filter(p => p.discountPrice > 0);
+  if (STATE.filters.featured) items = items.filter(p => p.featured);
+  if (sort === 'price-asc') items.sort((a, b) => effectivePrice(a) - effectivePrice(b));
+  if (sort === 'price-desc') items.sort((a, b) => effectivePrice(b) - effectivePrice(a));
+  if (sort === 'name-asc') items.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === 'newest') items = items.slice().reverse();
+  renderShop(items);
+}
+function clearFilters() {
+  if (document.getElementById('priceMin')) document.getElementById('priceMin').value = '';
+  if (document.getElementById('priceMax')) document.getElementById('priceMax').value = '';
+  STATE.filters = { colors: [], sizes: [], instock: false, sale: false, featured: false };
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  applyFilters();
+}
+function effectivePrice(p) { return (p.discountPrice > 0 ? p.discountPrice : p.price) || 0; }
+function discountPct(p) { if (!p.discountPrice || p.discountPrice >= p.price) return 0; return Math.round((1 - p.discountPrice / p.price) * 100); }
+
+// ═══════════════════════════════════════════════
+//  HOME SECTIONS
+// ═══════════════════════════════════════════════
+function renderHomeSections() {
+  const fp = STATE.products.filter(p => p.homeSection === 'featured');
+  const fList = fp.length ? fp : STATE.products.filter(p => p.featured).slice(0, 8);
+  const np = STATE.products.filter(p => p.homeSection === 'new');
+  const nList = np.length ? np : [...STATE.products].reverse().slice(0, 8);
+  const pp = STATE.products.filter(p => p.homeSection === 'popular');
+  const pList = pp.length ? pp : STATE.products.filter(p => p.discountPrice > 0).slice(0, 8);
+  const setSection = (sid, gid, items) => {
+    const s = document.getElementById(sid);
+    const g = document.getElementById(gid);
+    if (!s || !g) return;
+    if (items.length) { s.classList.remove('hidden'); g.innerHTML = items.map(productCardHTML).join(''); }
+    else s.classList.add('hidden');
+  };
+  setSection('homeSectionFeatured', 'featuredGrid', fList);
+  setSection('homeSectionNew', 'newGrid', nList);
+  setSection('homeSectionPopular', 'popularGrid', pList);
+}
+
+// ═══════════════════════════════════════════════
+//  PRODUCT CARDS
+// ═══════════════════════════════════════════════
+function productCardHTML(p) {
+  const ep = effectivePrice(p), disc = discountPct(p);
+  const imgBlock = (p.images || []).length
+    ? `<img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="pcard-img-placeholder" style="display:none">${catEmoji(p.category)}</div>`
+    : `<div class="pcard-img-placeholder">${catEmoji(p.category)}</div>`;
+  const sizes = (p.sizes || []).slice(0, 5).map(s => `<span class="pcard-size">${s}</span>`).join('');
+  const badge = disc > 0 ? `<span class="pcard-badge sale">-${disc}%</span>` : p.featured ? `<span class="pcard-badge">ফিচার্ড</span>` : '';
+  return `<div class="pcard" onclick="openProductModal('${p.id}')">
+    <div class="pcard-img-wrap">${imgBlock}${badge}</div>
+    <div class="pcard-body">
+      <div class="pcard-cat">${p.category || ''}</div>
+      <div class="pcard-name">${p.name}</div>
+      <div class="pcard-price-row">
+        <div class="pcard-price">৳${ep.toLocaleString()}</div>
+        ${disc > 0 ? `<div class="pcard-original">৳${Number(p.price).toLocaleString()}</div>` : ''}
+      </div>
+      ${sizes ? `<div class="pcard-sizes">${sizes}</div>` : ''}
+    </div>
+    <div class="pcard-footer">
+      <button class="btn-quick-add" onclick="event.stopPropagation();quickAddToCart('${p.id}')"><i class="fas fa-plus"></i> কার্টে</button>
+      <button class="btn-quick-view" onclick="event.stopPropagation();openProductModal('${p.id}')"><i class="fas fa-eye"></i></button>
+    </div>
+  </div>`;
+}
+function catEmoji(cat) {
+  const m = { 'পুরুষ-পোশাক': '👔', 'মহিলা-পোশাক': '👗', 'শিশু-পোশাক': '🧒', 'জুতা': '👟', 'ব্যাগ': '👜', 'ইলেকট্রনিক্স': '📱', 'গৃহস্থালি': '🏠', 'সৌন্দর্য': '💄', 'খেলাধুলা': '⚽', 'বই-শিক্ষা': '📚', 'অফার': '🔥' };
+  return m[cat] || '🛍️';
+}
+function renderShop(items) {
+  const g = document.getElementById('shopGrid'), noP = document.getElementById('noProducts');
+  if (!g) return;
+  document.getElementById('productCount').textContent = items.length;
+  if (!items.length) { g.innerHTML = ''; noP.classList.remove('hidden'); return; }
+  noP.classList.add('hidden');
+  g.innerHTML = items.map(productCardHTML).join('');
+  STATE.viewMode === 'list' ? g.classList.add('list-view') : g.classList.remove('list-view');
+}
+function setView(mode) {
+  STATE.viewMode = mode;
+  document.getElementById('gridViewBtn').classList.toggle('active', mode === 'grid');
+  document.getElementById('listViewBtn').classList.toggle('active', mode === 'list');
+  const g = document.getElementById('shopGrid');
+  if (g) { mode === 'list' ? g.classList.add('list-view') : g.classList.remove('list-view'); }
+}
+
+// ═══════════════════════════════════════════════
+//  PRODUCT MODAL
+// ═══════════════════════════════════════════════
+function openProductModal(id) {
+  const p = STATE.products.find(x => x.id === id);
+  if (!p) return;
+  STATE.modalProduct = p; STATE.modalQty = 1; STATE.galleryIdx = 0;
+  STATE.selectedColor = (p.colors || []).length ? p.colors[0] : null;
+  STATE.selectedSize = (p.sizes || []).length ? p.sizes[0] : null;
+  renderGallery(p);
+  renderModalDetails(p);
+  renderModalReviews(p.id);
+  document.querySelectorAll('.modal-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.modal-tab-body').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.getElementById('productModalOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function renderGallery(p) {
+  const imgs = p.images || [];
+  const slider = document.getElementById('gallerySlider');
+  const dots = document.getElementById('galleryDots');
+  const counter = document.getElementById('galleryCounter');
+  const prev = document.getElementById('galleryPrev');
+  const next = document.getElementById('galleryNext');
+  if (!imgs.length) {
+    slider.innerHTML = `<div class="gallery-slide"><div class="placeholder" style="min-height:420px;display:flex;align-items:center;justify-content:center;font-size:6rem;width:100%">${catEmoji(p.category)}</div></div>`;
+    dots.innerHTML = ''; counter.textContent = ''; prev.style.display = 'none'; next.style.display = 'none'; return;
+  }
+  slider.innerHTML = imgs.map(src =>
+    `<div class="gallery-slide"><img src="${src}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div style=min-height:420px;display:flex;align-items:center;justify-content:center;font-size:5rem>${catEmoji(p.category)}</div>'"/></div>`
+  ).join('');
+  dots.innerHTML = imgs.map((_, i) => `<button class="gallery-dot ${i === 0 ? 'active' : ''}" onclick="galleryGoTo(${i})"></button>`).join('');
+  counter.textContent = `1 / ${imgs.length}`;
+  prev.style.display = imgs.length > 1 ? 'flex' : 'none';
+  next.style.display = imgs.length > 1 ? 'flex' : 'none';
+  slider.style.transform = 'translateX(0)';
+}
+function galleryGoTo(idx) {
+  const p = STATE.modalProduct;
+  if (!p) return;
+  const imgs = p.images || [];
+  if (!imgs.length) return;
+  STATE.galleryIdx = ((idx % imgs.length) + imgs.length) % imgs.length;
+  document.getElementById('gallerySlider').style.transform = `translateX(-${STATE.galleryIdx * 100}%)`;
+  document.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === STATE.galleryIdx));
+  document.getElementById('galleryCounter').textContent = `${STATE.galleryIdx + 1} / ${imgs.length}`;
+}
+function galleryNav(dir) { galleryGoTo(STATE.galleryIdx + dir); }
+let _swipeStartX = 0;
+document.getElementById('modalGalleryWrap').addEventListener('touchstart', e => { _swipeStartX = e.touches[0].clientX; }, { passive: true });
+document.getElementById('modalGalleryWrap').addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - _swipeStartX; if (Math.abs(dx) > 40) galleryNav(dx < 0 ? 1 : -1); }, { passive: true });
+
+function switchModalTab(tab, el) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.modal-tab-body').forEach(b => b.classList.remove('active'));
+  const bodyId = tab === 'details' ? 'modalTabDetails' : 'modalTabReviews';
+  const body = document.getElementById(bodyId);
+  if (body) body.classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+function renderModalDetails(p) {
+  const ep = effectivePrice(p), disc = discountPct(p);
+  const reviews = getReviews(p.id);
+  const avgRating = reviews.length ? (reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / reviews.length).toFixed(1) : '৫.০';
+  const starsHTML = r => '★'.repeat(Math.round(Number(r) || 0)) + '☆'.repeat(5 - Math.round(Number(r) || 0));
+  const hasColors = (p.colors || []).length > 0, hasSizes = (p.sizes || []).length > 0;
+  let colorsHTML = '', sizesHTML = '';
+  if (hasColors) {
+    colorsHTML = `<div class="variant-label">কালার <span id="selectedColorName">${STATE.selectedColor ? (STATE.selectedColor.name || '') : ''}</span></div><div class="color-options">${p.colors.map((c, i) => `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div class="color-swatch ${i === 0 ? 'active' : ''}" style="background:${c.hex || c}" title="${c.name || c}" onclick="selectModalColor(${i},'${c.name || c}',this)"></div><span class="color-swatch-label">${c.name || c}</span></div>`).join('')}</div>`;
+  }
+  if (hasSizes) {
+    sizesHTML = `<div class="variant-label">সাইজ <span id="selectedSizeName">${STATE.selectedSize || ''}</span></div><div class="size-options">${p.sizes.map((s, i) => `<button class="size-btn ${i === 0 ? 'active' : ''}" onclick="selectModalSize('${s}',this)">${s}</button>`).join('')}</div>`;
+  }
+  const detailsEl = document.getElementById('modalTabDetails');
+  if (!detailsEl) return;
+  detailsEl.innerHTML = `
+    <div class="modal-category">${p.category || ''}${p.subCategory ? ' / ' + p.subCategory : ''}</div>
+    <div class="modal-name">${p.name}</div>
+    <div class="modal-price-row">
+      <div class="modal-price">৳${ep.toLocaleString()}</div>
+      ${disc > 0 ? `<div class="modal-price-orig">৳${Number(p.price).toLocaleString()}</div><div class="modal-discount">${disc}% ছাড়</div>` : ''}
+    </div>
+    <div class="modal-rating-row">
+      <span class="stars-display">${starsHTML(Number(avgRating))}</span>
+      <span style="font-size:.85rem;font-weight:700">${avgRating}</span>
+      <span style="font-size:.8rem;color:var(--ink3)">(${reviews.length} রিভিউ)</span>
+      <span style="font-size:.8rem;color:var(--ink3)">• স্টক: ${p.stock || 0}</span>
+    </div>
+    <hr class="modal-divider"/>
+    ${colorsHTML}${sizesHTML}
+    <div class="variant-label">পরিমাণ</div>
+    <div class="qty-wrap">
+      <button class="qty-btn" onclick="changeModalQty(-1)"><i class="fas fa-minus"></i></button>
+      <input class="qty-val" id="modalQtyVal" type="number" value="1" min="1" max="99" oninput="STATE.modalQty=parseInt(this.value)||1"/>
+      <button class="qty-btn" onclick="changeModalQty(1)"><i class="fas fa-plus"></i></button>
+    </div>
+    <button class="btn-add-cart-main" onclick="addToCartFromModal()"><i class="fas fa-cart-plus"></i> কার্টে যোগ করুন</button>
+    <button class="btn-buy-now" onclick="buyNow()"><i class="fas fa-bolt"></i> এখনই কিনুন</button>
+    ${p.description ? `<hr class="modal-divider"/><div class="modal-desc">${p.description}</div>` : ''}
+    ${(p.tags || []).length ? `<div class="modal-tags">${p.tags.map(t => `<span class="modal-tag">#${t}</span>`).join('')}</div>` : ''}`;
+}
+
+function renderModalReviews(productId) {
+  const reviews = getReviews(productId);
+  const badgeEl = document.getElementById('reviewCountBadge');
+  if (badgeEl) badgeEl.textContent = reviews.length;
+  const avg = reviews.length ? reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / reviews.length : 0;
+  const starsStr = r => '★'.repeat(Math.round(Number(r) || 0)) + '☆'.repeat(5 - Math.round(Number(r) || 0));
+  const dist = [5, 4, 3, 2, 1].map(n => ({ n, count: reviews.filter(r => Number(r.rating) === n).length }));
+  const summaryHTML = `<div class="review-summary">
+    <div style="text-align:center">
+      <div class="review-avg-big">${reviews.length ? avg.toFixed(1) : '—'}</div>
+      <div class="review-avg-stars">${starsStr(avg)}</div>
+      <div class="review-count">${reviews.length} রিভিউ</div>
+    </div>
+    <div class="review-bars">${dist.map(d => `<div class="review-bar-row"><span class="review-bar-label">${d.n}</span><div class="review-bar-track"><div class="review-bar-fill" style="width:${reviews.length ? Math.round(d.count / reviews.length * 100) : 0}%"></div></div><span class="review-bar-pct">${d.count}</span></div>`).join('')}</div>
+  </div>`;
+  const reviewsHTML = reviews.length
+    ? reviews.map(r => `<div class="review-item"><div class="review-header"><span class="reviewer-name">${r.name}</span><span class="reviewer-date">${r.date}</span></div><div class="review-stars">${starsStr(Number(r.rating) || 0)} (${r.rating}/৫)</div><div class="review-text">${r.text || ''}</div><div class="review-verified"><i class="fas fa-check-circle"></i> যাচাইকৃত ক্রেতা</div></div>`).join('')
+    : `<div style="text-align:center;padding:24px;color:var(--ink3)"><i class="fas fa-star" style="font-size:2rem;opacity:.3;display:block;margin-bottom:8px"></i>এখনো কোনো রিভিউ নেই</div>`;
+  const writeHTML = `<div class="write-review-box">
+    <h4><i class="fas fa-pen"></i> রিভিউ লিখুন</h4>
+    <div class="form-group"><label class="form-label">নাম *</label><input class="form-input" id="reviewName" placeholder="আপনার নাম" style="background:var(--surface)"/></div>
+    <div class="form-group"><label class="form-label">রেটিং *</label>
+      <div class="star-rating-input">
+        <input type="radio" name="rstar_${productId}" id="rstar5_${productId}" value="5"/><label for="rstar5_${productId}">★</label>
+        <input type="radio" name="rstar_${productId}" id="rstar4_${productId}" value="4"/><label for="rstar4_${productId}">★</label>
+        <input type="radio" name="rstar_${productId}" id="rstar3_${productId}" value="3"/><label for="rstar3_${productId}">★</label>
+        <input type="radio" name="rstar_${productId}" id="rstar2_${productId}" value="2"/><label for="rstar2_${productId}">★</label>
+        <input type="radio" name="rstar_${productId}" id="rstar1_${productId}" value="1"/><label for="rstar1_${productId}">★</label>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">মতামত</label><textarea class="form-input" id="reviewText" rows="3" placeholder="পণ্যটি কেমন লাগলো..." style="background:var(--surface)"></textarea></div>
+    <button class="btn-submit-review" onclick="submitReview('${productId}')"><i class="fas fa-paper-plane"></i> জমা দিন</button>
+  </div>`;
+  const reviewsEl = document.getElementById('modalTabReviews');
+  if (reviewsEl) reviewsEl.innerHTML = `<div class="reviews-section">${summaryHTML}<div class="review-list">${reviewsHTML}</div>${writeHTML}</div>`;
+}
+
+function submitReview(productId) {
+  const nameEl = document.getElementById('reviewName');
+  const textEl = document.getElementById('reviewText');
+  const ratingEl = document.querySelector(`input[name="rstar_${productId}"]:checked`);
+  const name = nameEl ? nameEl.value.trim() : '';
+  const text = textEl ? textEl.value.trim() : '';
+  if (!name) { showToast('নাম দিন', 'error'); return; }
+  if (!ratingEl) { showToast('রেটিং দিন', 'error'); return; }
+  addReview(productId, { name, rating: Number(ratingEl.value), text: text || '👍' });
+  showToast('রিভিউ যোগ হয়েছে!', 'success');
+  renderModalReviews(productId);
+}
+function selectModalColor(idx, name, el) {
+  STATE.selectedColor = STATE.modalProduct.colors[idx];
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const n = document.getElementById('selectedColorName'); if (n) n.textContent = name;
+}
+function selectModalSize(size, el) {
+  STATE.selectedSize = size;
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const n = document.getElementById('selectedSizeName'); if (n) n.textContent = size;
+}
+function changeModalQty(d) {
+  STATE.modalQty = Math.max(1, STATE.modalQty + d);
+  const el = document.getElementById('modalQtyVal'); if (el) el.value = STATE.modalQty;
+}
+function canAddToCart() {
+  const p = STATE.modalProduct;
+  if (!p) return false;
+  if ((p.colors || []).length > 0 && !STATE.selectedColor) { showToast('কালার নির্বাচন করুন', 'error'); return false; }
+  if ((p.sizes || []).length > 0 && !STATE.selectedSize) { showToast('সাইজ নির্বাচন করুন', 'error'); return false; }
+  return true;
+}
+function addToCartFromModal() {
+  if (!canAddToCart()) return;
+  const p = STATE.modalProduct; if (!p) return;
+  for (let i = 0; i < STATE.modalQty; i++) addToCart(p, STATE.selectedColor, STATE.selectedSize);
+  closeProductModalDirect();
+  showToast(`✓ ${p.name} কার্টে যোগ হয়েছে`, 'success');
+}
+function buyNow() {
+  if (!canAddToCart()) return;
+  const p = STATE.modalProduct; if (!p) return;
+  for (let i = 0; i < STATE.modalQty; i++) addToCart(p, STATE.selectedColor, STATE.selectedSize);
+  closeProductModalDirect();
+  showPage('checkoutPage');
+}
+function closeProductModal(e) { if (e && e.target !== document.getElementById('productModalOverlay')) return; closeProductModalDirect(); }
+function closeProductModalDirect() { document.getElementById('productModalOverlay').classList.add('hidden'); document.body.style.overflow = ''; }
+
+// ═══════════════════════════════════════════════
+//  CART
+// ═══════════════════════════════════════════════
+function cartKey(id, color, size) { return id + '|' + ((color && (color.name || color)) || '') + '|' + (size || ''); }
+function addToCart(p, color, size) {
+  const key = cartKey(p.id, color, size);
+  const ex = STATE.cart.find(c => c.key === key);
+  if (ex) ex.qty++;
+  else STATE.cart.push({
+    key, id: p.id, name: p.name, price: effectivePrice(p),
+    image: (p.images || [])[0] || '', category: p.category,
+    color: color ? (color.name || color) : '',
+    colorHex: color ? (color.hex || color) : '',
+    size: size || '', qty: 1
+  });
+  saveCart(); updateCartUI();
+}
+function quickAddToCart(id) {
+  const p = STATE.products.find(x => x.id === id);
+  if (!p) return;
+  if ((p.colors || []).length > 0 || (p.sizes || []).length > 0) { openProductModal(id); return; }
+  addToCart(p, null, null);
+  showToast(`✓ ${p.name} কার্টে যোগ হয়েছে`, 'success');
+}
+function changeCartQty(key, delta) {
+  const item = STATE.cart.find(c => c.key === key);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) STATE.cart = STATE.cart.filter(c => c.key !== key);
+  saveCart(); updateCartUI(); renderCartDrawer();
+}
+function removeCartItem(key) { STATE.cart = STATE.cart.filter(c => c.key !== key); saveCart(); updateCartUI(); renderCartDrawer(); }
+function saveCart() { try { localStorage.setItem('sbd_cart', JSON.stringify(STATE.cart)); } catch(e) {} }
+function cartSubtotal() { return STATE.cart.reduce((s, c) => s + (c.price * c.qty), 0); }
+function updateCartUI() {
+  const total = STATE.cart.reduce((s, c) => s + c.qty, 0);
+  document.getElementById('cartBadge').textContent = total;
+  document.getElementById('cartItemCount').textContent = total;
+}
+function toggleCartDrawer() {
+  const d = document.getElementById('cartDrawer'), o = document.getElementById('cartOverlay');
+  const isOpen = !d.classList.contains('hidden');
+  if (isOpen) { d.classList.add('hidden'); o.classList.add('hidden'); document.body.style.overflow = ''; }
+  else { renderCartDrawer(); d.classList.remove('hidden'); o.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+}
+function renderCartDrawer() {
+  const body = document.getElementById('cartBody'), footer = document.getElementById('cartFooter');
+  if (!STATE.cart.length) {
+    body.innerHTML = `<div class="cart-empty"><i class="fas fa-shopping-bag"></i><p>কার্ট খালি আছে</p></div>`;
+    footer.innerHTML = ''; return;
+  }
+  body.innerHTML = STATE.cart.map(item =>
+    `<div class="cart-item-card">
+      <div class="cart-item-img">${item.image ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'"/>` : `<div class="placeholder">${catEmoji(item.category)}</div>`}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-variant">${item.color ? `<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:${item.colorHex || item.color};border:1px solid rgba(0,0,0,.1)"></span>${item.color}</span>` : ''}${item.size ? ' · ' + item.size : ''}</div>
+        <div class="cart-item-price">৳${(item.price * item.qty).toLocaleString()}</div>
+        <div class="cart-qty-row">
+          <div class="cart-qty-ctrl">
+            <button class="cart-qty-btn" onclick="changeCartQty('${item.key}',-1)"><i class="fas fa-minus"></i></button>
+            <span class="cart-qty-num">${item.qty}</span>
+            <button class="cart-qty-btn" onclick="changeCartQty('${item.key}',1)"><i class="fas fa-plus"></i></button>
+          </div>
+          <button class="cart-item-delete" onclick="removeCartItem('${item.key}')"><i class="fas fa-trash"></i> সরান</button>
+        </div>
+      </div>
+    </div>`
+  ).join('');
+  const sub = cartSubtotal(), del = DELIVERY_CONFIG.chargeOutside;
+  footer.innerHTML = `<div class="delivery-note"><i class="fas fa-truck"></i> ঢাকায় ৳৮০ | বাইরে ৳১৫০</div>
+    <div class="cart-subtotal" style="margin-top:8px"><span>পণ্যের মোট</span><span>৳${sub.toLocaleString()}</span></div>
+    <div class="cart-subtotal total"><span>আনুমানিক সর্বমোট</span><span>৳${(sub + del).toLocaleString()}+</span></div>
+    <button class="btn-checkout" onclick="toggleCartDrawer();showPage('checkoutPage')"><i class="fas fa-lock"></i> চেকআউট</button>`;
+}
+
+// ═══════════════════════════════════════════════
+//  CHECKOUT
+// ═══════════════════════════════════════════════
+function selectPaymentMethod(m) {
+  STATE.paymentMethod = m;
+  document.getElementById('payCOD').classList.toggle('active', m === 'cod');
+  document.getElementById('payMobile').classList.toggle('active', m === 'mobile');
+  document.getElementById('bkashField').style.display = m === 'mobile' ? 'block' : 'none';
+}
+function renderCheckoutPage() {
+  renderCheckoutTotals();
+  const items = document.getElementById('checkoutItems');
+  if (!items) return;
+  items.innerHTML = STATE.cart.map(item =>
+    `<div class="order-summary-item">
+      <div class="os-img">${item.image ? `<img src="${item.image}" alt="${item.name}"/>` : `<div class="ph">${catEmoji(item.category)}</div>`}</div>
+      <div class="os-info"><div class="os-name">${item.name}</div><div class="os-variant">${item.color ? item.color : ''}${item.color && item.size ? ' · ' : ''}${item.size || ''} × ${item.qty}</div></div>
+      <div class="os-price">৳${(item.price * item.qty).toLocaleString()}</div>
+    </div>`
+  ).join('');
+}
+function renderCheckoutTotals() {
+  const distEl = document.getElementById('cDistrict');
+  const district = distEl ? distEl.value : '';
+  const del = getDeliveryCharge(district);
+  const sub = cartSubtotal();
+  const totals = document.getElementById('checkoutTotals');
+  if (!totals) return;
+  const zoneLabel = district ? (DELIVERY_CONFIG.insideDhaka.includes(district) ? 'ঢাকার ভেতরে' : 'ঢাকার বাইরে') : '';
+  totals.innerHTML = `
+    <div class="summary-row"><span>পণ্যের মোট</span><span>৳${sub.toLocaleString()}</span></div>
+    <div class="summary-row"><span>ডেলিভারি ${zoneLabel ? '(' + zoneLabel + ')' : ''}</span><span>৳${del}</span></div>
+    <div class="summary-row grand"><span>সর্বমোট</span><span class="grand-price">৳${(sub + del).toLocaleString()}</span></div>`;
+}
+function placeOrderNow() {
+  const nameEl = document.getElementById('cName'), phoneEl = document.getElementById('cPhone');
+  const districtEl = document.getElementById('cDistrict'), addressEl = document.getElementById('cAddress');
+  const name = nameEl ? nameEl.value.trim() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const district = districtEl ? districtEl.value : '';
+  const address = addressEl ? addressEl.value.trim() : '';
+  if (!name || !phone || !district || !address) { showToast('সব তথ্য পূরণ করুন', 'error'); return; }
+  if (!STATE.cart.length) { showToast('কার্ট খালি!', 'error'); return; }
+  const bkashEl = document.getElementById('cBkash');
+  if (STATE.paymentMethod === 'mobile' && bkashEl && !bkashEl.value.trim()) { showToast('bKash/Nagad নম্বর দিন', 'error'); return; }
+  const deliveryCharge = getDeliveryCharge(district);
+  const sub = cartSubtotal();
+  const thanaEl = document.getElementById('cThana'), noteEl = document.getElementById('cNote');
+  const orderData = {
+    customerName: name, phone, address, district,
+    thana: thanaEl ? thanaEl.value.trim() : '',
+    paymentMethod: STATE.paymentMethod === 'cod' ? 'Cash on Delivery' : 'bKash/Nagad',
+    bKashNumber: bkashEl ? bkashEl.value.trim() : '',
+    note: noteEl ? noteEl.value.trim() : '',
+    items: STATE.cart, subtotal: sub, deliveryCharge, total: sub + deliveryCharge
+  };
+  showLoadingOverlay(true);
+  GAS.run('placeOrder', [orderData], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      STATE.lastOrderId = res.orderId;
+      STATE.cart = []; saveCart(); updateCartUI();
+      document.getElementById('successOid').textContent = res.orderId;
+      showPage('successPage');
+    } else showToast('অর্ডার ব্যর্থ: ' + (res ? res.error || '' : ''), 'error');
+  }, err => { showLoadingOverlay(false); showToast('ত্রুটি: ' + (err ? err.message : ''), 'error'); });
+}
+
+// ═══════════════════════════════════════════════
+//  TRACKING
+// ═══════════════════════════════════════════════
+function trackOrder() {
+  const oid = document.getElementById('trackInput').value.trim();
+  if (!oid) { showToast('অর্ডার নম্বর দিন', 'error'); return; }
+  showLoadingOverlay(true);
+  GAS.run('getAllOrders', [], orders => {
+    showLoadingOverlay(false);
+    const safeOrders = Array.isArray(orders) ? orders : [];
+    const order = safeOrders.find(o => o.orderId === oid);
+    renderTrackingResult(order, oid);
+  }, () => { showLoadingOverlay(false); showToast('লোড ব্যর্থ', 'error'); });
+}
+function trackSuccessOrder() {
+  document.getElementById('trackInput').value = STATE.lastOrderId || '';
+  showPage('trackingPage');
+  if (STATE.lastOrderId) setTimeout(() => trackOrder(), 300);
+}
+const STATUS_STEPS = [
+  { key: 'Pending', icon: 'fa-clock', label: 'অর্ডার গ্রহণ', desc: 'অর্ডার গ্রহণ করা হয়েছে' },
+  { key: 'Processing', icon: 'fa-cog', label: 'প্রক্রিয়াকরণ', desc: 'অর্ডার প্রস্তুত করা হচ্ছে' },
+  { key: 'Shipped', icon: 'fa-truck', label: 'শিপমেন্ট', desc: 'পণ্য ডেলিভারির পথে' },
+  { key: 'Delivered', icon: 'fa-check-circle', label: 'ডেলিভার্ড', desc: 'পণ্য সফলভাবে পৌঁছেছে' },
+];
+function renderTrackingResult(order, oid) {
+  const res = document.getElementById('trackingResult');
+  res.classList.remove('hidden');
+  if (!order) {
+    res.innerHTML = `<div style="text-align:center;padding:40px;color:var(--ink3)"><i class="fas fa-search" style="font-size:2.5rem;margin-bottom:14px;display:block;opacity:.3"></i><p>অর্ডার <strong>${oid}</strong> পাওয়া যায়নি</p></div>`;
+    return;
+  }
+  const items = Array.isArray(order.items) ? order.items : [];
+  const currentIdx = STATUS_STEPS.findIndex(s => s.key === order.status);
+  const isCancelled = order.status === 'Cancelled';
+  const stepsHTML = STATUS_STEPS.map((step, i) => {
+    let cls = '';
+    if (!isCancelled) { if (i < currentIdx) cls = 'done'; else if (i === currentIdx) cls = 'active'; }
+    return `<div class="status-step"><div class="step-icon ${cls}"><i class="fas ${step.icon}"></i></div><div class="step-info"><div class="step-label" style="${cls === 'active' ? 'color:var(--brand)' : ''}">${step.label}</div><div class="step-desc">${step.desc}</div></div></div>`;
+  }).join('');
+  let courierBox = '';
+  if (order.courierName && order.trackingNumber) {
+    const courier = STATE.allCouriers.find(c => c.name === order.courierName);
+    const trackUrl = courier && courier.trackingUrl ? courier.trackingUrl + order.trackingNumber : '';
+    courierBox = `<div class="courier-info-box"><div class="ci-title"><i class="fas fa-truck"></i> কুরিয়ার</div><div class="ci-row"><strong>${order.courierName}</strong></div><div class="ci-row">ট্র্যাকিং: <span class="tracking-chip"><i class="fas fa-barcode"></i> ${order.trackingNumber}</span></div>${trackUrl ? `<a href="${trackUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> ট্র্যাক করুন</a>` : ''}</div>`;
+  }
+  const itemsHTML = items.map(i =>
+    `<div class="tracking-item-row"><span>${i.name}${i.color ? ' (' + i.color + ')' : ''}${i.size ? ' / ' + i.size : ''} × ${i.qty}</span><span>৳${(i.price * i.qty).toLocaleString()}</span></div>`
+  ).join('');
+  res.innerHTML = `<div class="tracking-result">
+    <div class="tracking-result-header">
+      <div class="tracking-oid">${order.orderId}</div>
+      <div class="tracking-customer">${order.customerName} — ${order.phone}</div>
+      <div style="font-size:.82rem;color:var(--ink3);margin-top:4px">${order.address || ''}, ${order.district || ''} | ${order.orderDate || ''}</div>
+      <div style="margin-top:8px">${statusBadge(order.status)}</div>
+    </div>
+    ${courierBox}
+    <div class="tracking-status-bar">
+      ${isCancelled ? `<div class="alert-box danger"><i class="fas fa-times-circle"></i> অর্ডার বাতিল</div>` : ''}
+      <div class="status-steps">${stepsHTML}</div>
+    </div>
+    <div class="tracking-items">
+      <div class="tracking-items-title">অর্ডার করা পণ্য</div>
+      ${itemsHTML}
+      <div class="tracking-total"><span>সর্বমোট</span><span>৳${Number(order.total || 0).toLocaleString()}</span></div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  ADMIN AUTH
+// ═══════════════════════════════════════════════
+function showAdminLogin() {
+  document.getElementById('adminLoginPage').classList.remove('hidden');
+  document.getElementById('adminPass').value = '';
+  setTimeout(() => document.getElementById('adminPass').focus(), 100);
+}
+function hideAdminLogin() { document.getElementById('adminLoginPage').classList.add('hidden'); }
+function doLogin() {
+  const p = document.getElementById('adminPass').value;
+  if (!p) { showToast('পাসওয়ার্ড দিন', 'error'); return; }
+  showLoadingOverlay(true);
+  GAS.run('adminLogin', [p], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      hideAdminLogin();
+      document.getElementById('site').style.display = 'none';
+      document.getElementById('adminPanel').classList.add('active');
+      switchAdminTab('dash');
+    } else showToast((res && res.error) || 'লগইন ব্যর্থ', 'error');
+  }, err => { showLoadingOverlay(false); showToast('ত্রুটি: ' + (err ? err.message : ''), 'error'); });
+}
+function exitAdmin() { document.getElementById('adminPanel').classList.remove('active'); document.getElementById('site').style.display = ''; }
+
+function switchAdminTab(tab) {
+  ['dash', 'prod', 'ord', 'cms'].forEach(t => {
+    const panelId = 'admin' + t.charAt(0).toUpperCase() + t.slice(1);
+    const panel = document.getElementById(panelId);
+    if (panel) panel.classList.toggle('hidden', t !== tab);
+    const btn = document.getElementById('aTab-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  if (tab === 'dash') loadAdminDash();
+  if (tab === 'prod') loadAdminProducts();
+  if (tab === 'ord') loadAdminOrders();
+  if (tab === 'cms') loadCmsSettings();
+}
+
+// ═══════════════════════════════════════════════
+//  ADMIN DASHBOARD — সম্পূর্ণ ফিক্সড
+// ═══════════════════════════════════════════════
+function loadAdminDash() {
+  showLoadingOverlay(true);
+
+  // প্রথমে getDashboardStats থেকে সব স্ট্যাট আনি
+  GAS.run('getDashboardStats', [], stats => {
+    if (!stats) {
+      showLoadingOverlay(false);
+      showToast('ড্যাশবোর্ড ডেটা লোড ব্যর্থ', 'error');
+      return;
+    }
+
+    const setV = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setV('sOrders', stats.totalOrders || 0);
+    setV('sRevenue', '৳' + Number(stats.totalRevenue || 0).toLocaleString());
+    setV('sTodayRevenue', '৳' + Number(stats.todayRevenue || 0).toLocaleString());
+    setV('sPending', stats.pendingOrders || 0);
+    setV('sShipped', stats.shippedOrders || 0);
+    setV('sDelivered', stats.deliveredOrders || (stats.statusCount && stats.statusCount['Delivered']) || 0);
+    setV('sProducts', stats.totalProducts || 0);
+    setV('sLowStock', stats.lowStockCount || 0);
+
+    // রিভেনিউ চার্ট রেন্ডার
+    renderRevenueChart(stats.dailyRevenue || {});
+
+    // স্ট্যাটাস ডোনাট রেন্ডার
+    renderStatusDonut(stats.statusCount || {});
+
+    // কম স্টক টেবিল
+    const ls = stats.lowStockItems || [];
+    const lsEl = document.getElementById('lowStockTbody');
+    if (lsEl) {
+      lsEl.innerHTML = ls.length
+        ? ls.map(p => `<tr><td><strong>${p.name}</strong></td><td><strong style="color:#e65100">${p.stock}</strong></td></tr>`).join('')
+        : `<tr><td colspan="2" style="text-align:center;color:var(--ink3);padding:16px">কম স্টক নেই ✓</td></tr>`;
+    }
+
+    // সাম্প্রতিক অর্ডার — getDashboardStats থেকেই recentOrders আসে
+    // যদি না আসে তাহলে getAllOrders থেকে আনি
+    if (stats.recentOrders && stats.recentOrders.length >= 0) {
+      renderRecentOrdersTable(stats.recentOrders);
+      showLoadingOverlay(false);
+    } else {
+      // GAS এর getDashboardStats-এ recentOrders নেই, তাই আলাদা call
+      GAS.run('getAllOrders', [], orders => {
+        showLoadingOverlay(false);
+        const safeOrders = Array.isArray(orders) ? orders : [];
+        STATE.allOrders = safeOrders;
+        renderRecentOrdersTable([...safeOrders].reverse().slice(0, 8));
+      }, () => {
+        showLoadingOverlay(false);
+        renderRecentOrdersTable([]);
+      });
+    }
+
+  }, err => {
+    showLoadingOverlay(false);
+    showToast('ড্যাশবোর্ড লোড ব্যর্থ: ' + (err ? err.message : ''), 'error');
+  });
+}
+
+function renderRecentOrdersTable(recent) {
+  const el = document.getElementById('recentOrdersTbody');
+  if (!el) return;
+  if (!recent || !recent.length) {
+    el.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--ink3);padding:24px">কোনো অর্ডার নেই</td></tr>';
+    return;
+  }
+  el.innerHTML = recent.map(o => `
+    <tr>
+      <td style="font-family:monospace;font-size:.72rem">${o.orderId}</td>
+      <td><strong>${o.customerName || ''}</strong><br/><span style="font-size:.72rem;color:var(--ink3)">${o.phone || ''}</span></td>
+      <td style="color:var(--brand);font-weight:700">৳${Number(o.total || 0).toLocaleString()}</td>
+      <td>${statusBadge(o.status)}</td>
+    </tr>`).join('');
+}
+
+function renderRevenueChart(daily) {
+  const chart = document.getElementById('revenueChart');
+  if (!chart) return;
+  const entries = Object.entries(daily);
+  if (!entries.length) { chart.innerHTML = '<div style="color:var(--ink3);font-size:.85rem;margin:auto">কোনো ডেটা নেই</div>'; return; }
+  const maxVal = Math.max(...entries.map(e => e[1]), 1);
+  chart.innerHTML = entries.map(([date, val]) => {
+    const h = Math.max((val / maxVal) * 100, val > 0 ? 8 : 2);
+    const d = date.split('/');
+    return `<div class="chart-bar-wrap">
+      <div class="chart-bar" style="height:${h}%">
+        <div class="chart-bar-tooltip">৳${Number(val).toLocaleString()}</div>
+      </div>
+      <div class="chart-bar-lbl">${d[0]}/${d[1]}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStatusDonut(counts) {
+  const wrap = document.getElementById('statusDonut');
+  if (!wrap) return;
+  const colors = { Pending: '#f57f17', Processing: '#1565c0', Shipped: '#7b1fa2', Delivered: '#2e7d32', Cancelled: '#c62828' };
+  const labels = { Pending: 'পেন্ডিং', Processing: 'প্রসেসিং', Shipped: 'শিপড', Delivered: 'ডেলিভার্ড', Cancelled: 'বাতিল' };
+  const entries = Object.entries(counts).filter(e => e[1] > 0);
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  if (!total) { wrap.innerHTML = '<div style="color:var(--ink3);font-size:.85rem;margin:auto;text-align:center;padding:20px">কোনো অর্ডার নেই</div>'; return; }
+  let start = 0;
+  const slices = entries.map(([st, cnt]) => {
+    const pct = cnt / total;
+    const angle = pct * 360;
+    const sr = (start - 90) * Math.PI / 180;
+    const er = (start + angle - 90) * Math.PI / 180;
+    const x1 = 50 + 40 * Math.cos(sr), y1 = 50 + 40 * Math.sin(sr);
+    const x2 = 50 + 40 * Math.cos(er), y2 = 50 + 40 * Math.sin(er);
+    const la = angle > 180 ? 1 : 0;
+    const path = `M 50 50 L ${x1} ${y1} A 40 40 0 ${la} 1 ${x2} ${y2} Z`;
+    start += angle;
+    return `<path d="${path}" fill="${colors[st] || '#999'}" opacity=".85"/>`;
+  }).join('');
+  const legend = entries.map(([st, cnt]) => `<div class="donut-item"><div class="donut-dot" style="background:${colors[st] || '#999'}"></div><span>${labels[st] || st}: <strong>${cnt}</strong></span></div>`).join('');
+  wrap.innerHTML = `<svg viewBox="0 0 100 100" style="width:120px;height:120px;flex-shrink:0">${slices}<circle cx="50" cy="50" r="24" fill="white"/><text x="50" y="55" text-anchor="middle" font-size="14" font-weight="bold" fill="#1c1c1c">${total}</text></svg><div class="donut-legend">${legend}</div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  ADMIN PRODUCTS
+// ═══════════════════════════════════════════════
+function loadAdminProducts() {
+  showLoadingOverlay(true);
+  GAS.run('getProducts', [], prods => {
+    STATE.products = STATE.allProducts = Array.isArray(prods) ? prods : [];
+    showLoadingOverlay(false);
+    renderProdTable(STATE.allProducts);
+  }, () => { showLoadingOverlay(false); showToast('পণ্য লোড ব্যর্থ', 'error'); });
+}
+function filterProdTable() {
+  const q = (document.getElementById('prodSearch') ? document.getElementById('prodSearch').value : '').toLowerCase();
+  const cat = document.getElementById('prodCatFilter') ? document.getElementById('prodCatFilter').value : '';
+  let items = [...STATE.allProducts];
+  if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+  if (cat) items = items.filter(p => p.category === cat);
+  renderProdTable(items);
+}
+function hsBadge(hs) {
+  const m = { featured: `<span class="hs-badge hs-featured">⭐ সেরা</span>`, new: `<span class="hs-badge hs-new">🆕 নতুন</span>`, popular: `<span class="hs-badge hs-popular">🔥 জনপ্রিয়</span>` };
+  return m[hs] || `<span class="hs-badge hs-none">—</span>`;
+}
+function renderProdTable(prods) {
+  const tb = document.getElementById('prodTbody'), empty = document.getElementById('prodTableEmpty');
+  if (!tb) return;
+  if (!prods || !prods.length) { tb.innerHTML = ''; if (empty) empty.classList.remove('hidden'); return; }
+  if (empty) empty.classList.add('hidden');
+  tb.innerHTML = prods.map(p => {
+    const ep = effectivePrice(p);
+    const imgEl = (p.images || []).length ? `<img src="${p.images[0]}" style="width:42px;height:48px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'"/>` : catEmoji(p.category);
+    const colors = (p.colors || []).map(c => `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${c.hex || c};border:1px solid rgba(0,0,0,.1)" title="${c.name || c}"></span>`).join('');
+    return `<tr>
+      <td><input type="checkbox" ${STATE.selectedProds.has(p.id) ? 'checked' : ''} onchange="toggleProdSelect('${p.id}',this.checked)"/></td>
+      <td>${imgEl}</td>
+      <td><strong>${p.name}</strong><br/><span style="font-size:.72rem;color:var(--ink3)">${p.id}</span></td>
+      <td style="font-size:.78rem">${p.category || '—'}</td>
+      <td><strong style="color:var(--brand)">৳${ep.toLocaleString()}</strong></td>
+      <td style="display:flex;gap:3px;flex-wrap:wrap">${colors || '—'}</td>
+      <td>${(p.sizes || []).join(', ') || '—'}</td>
+      <td><span style="font-weight:700;color:${p.stock === 0 ? '#c62828' : p.stock < 5 ? '#e65100' : 'var(--ink)'}">${p.stock}</span></td>
+      <td>${hsBadge(p.homeSection)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-action btn-edit" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn-action btn-del" onclick="delProduct('${p.id}','${p.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function toggleProdSelect(id, checked) { checked ? STATE.selectedProds.add(id) : STATE.selectedProds.delete(id); updateBulkBar(); }
+function toggleSelectAllProd() {
+  const all = document.getElementById('selectAllProd').checked;
+  STATE.selectedProds.clear();
+  if (all) STATE.allProducts.forEach(p => STATE.selectedProds.add(p.id));
+  updateBulkBar();
+  document.querySelectorAll('#prodTbody input[type=checkbox]').forEach(cb => cb.checked = all);
+}
+function updateBulkBar() {
+  const bar = document.getElementById('prodBulkBar'), n = STATE.selectedProds.size;
+  if (bar) { if (n > 0) { bar.classList.remove('hidden'); document.getElementById('bulkCount').textContent = n; } else bar.classList.add('hidden'); }
+}
+function clearBulkSelect() {
+  STATE.selectedProds.clear(); updateBulkBar();
+  document.querySelectorAll('#prodTbody input[type=checkbox]').forEach(cb => cb.checked = false);
+  const sa = document.getElementById('selectAllProd'); if (sa) sa.checked = false;
+}
+function bulkDeleteProducts() {
+  if (!STATE.selectedProds.size) return;
+  if (!confirm(`${STATE.selectedProds.size}টি পণ্য মুছতে চান?`)) return;
+  const ids = [...STATE.selectedProds]; let done = 0;
+  showLoadingOverlay(true);
+  ids.forEach(id => {
+    GAS.run('deleteProduct', [id], () => {
+      done++;
+      if (done === ids.length) { showLoadingOverlay(false); showToast('মুছে গেছে', 'success'); clearBulkSelect(); loadAdminProducts(); }
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  ADMIN ORDERS
+// ═══════════════════════════════════════════════
+function loadAdminOrders() {
+  showLoadingOverlay(true);
+  GAS.run('getAllOrders', [], orders => {
+    STATE.allOrders = Array.isArray(orders) ? orders : [];
+    showLoadingOverlay(false);
+    renderOrdersTable(STATE.allOrders);
+    // কুরিয়ার লিস্ট লোড
+    GAS.run('getCouriers', [], res => {
+      if (res && res.success) { STATE.allCouriers = res.data || []; updateCourierDropdowns(); }
+    });
+  }, () => { showLoadingOverlay(false); showToast('অর্ডার লোড ব্যর্থ', 'error'); });
+}
+function updateCourierDropdowns() {
+  const filterOpts = `<option value="">সব কুরিয়ার</option>` + STATE.allCouriers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+  const cf = document.getElementById('orderCourierFilter'); if (cf) cf.innerHTML = filterOpts;
+  const bs = document.getElementById('bulkCourierSel');
+  if (bs) bs.innerHTML = `<option value="">কুরিয়ার অ্যাসাইন</option>` + STATE.allCouriers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+}
+function filterAdminOrders() {
+  const f = document.getElementById('orderFilter') ? document.getElementById('orderFilter').value : '';
+  const q = (document.getElementById('ordSearch') ? document.getElementById('ordSearch').value : '').toLowerCase();
+  const cf = document.getElementById('orderCourierFilter') ? document.getElementById('orderCourierFilter').value : '';
+  let items = [...STATE.allOrders];
+  if (f) items = items.filter(o => o.status === f);
+  if (q) items = items.filter(o => (o.customerName || '').toLowerCase().includes(q) || (o.phone || '').includes(q) || (o.orderId || '').toLowerCase().includes(q));
+  if (cf) items = items.filter(o => o.courierName === cf);
+  renderOrdersTable(items);
+}
+function renderOrdersTable(orders) {
+  const tb = document.getElementById('ordTbody'), empty = document.getElementById('ordTableEmpty');
+  if (!tb) return;
+  if (!orders || !orders.length) {
+    tb.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+  tb.innerHTML = [...orders].reverse().map(o => `<tr>
+    <td><input type="checkbox" ${STATE.selectedOrds.has(o.orderId) ? 'checked' : ''} onchange="toggleOrdSelect('${o.orderId}',this.checked)"/></td>
+    <td style="font-family:monospace;font-size:.72rem">${o.orderId}</td>
+    <td><strong>${o.customerName || ''}</strong><br/><span style="font-size:.72rem;color:var(--ink3)">${o.district || ''}</span></td>
+    <td>${o.phone || ''}</td>
+    <td style="font-size:.78rem">${o.district || ''}</td>
+    <td style="font-size:.78rem">${o.paymentMethod || ''}</td>
+    <td style="color:var(--brand);font-weight:700">৳${Number(o.total || 0).toLocaleString()}</td>
+    <td>${o.courierName ? `<span style="font-size:.75rem;font-weight:600;color:#7b1fa2">${o.courierName}</span>` : '—'}</td>
+    <td>${o.trackingNumber ? `<span class="tracking-chip" style="font-size:.68rem;padding:2px 8px">${o.trackingNumber}</span>` : '—'}</td>
+    <td>
+      <select style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.78rem;background:var(--bg)" onchange="quickUpdateOrderStatus('${o.orderId}',this.value)">
+        ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => `<option${o.status === s ? ' selected' : ''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td style="font-size:.75rem;color:var(--ink3)">${o.orderDate || ''}</td>
+    <td style="white-space:nowrap">
+      <button class="btn-action btn-view" onclick="viewOrderDetail('${o.orderId}')"><i class="fas fa-eye"></i></button>
+      <button class="btn-action btn-courier" onclick="viewOrderDetail('${o.orderId}','courier')"><i class="fas fa-truck"></i></button>
+      <button class="btn-action btn-print" onclick="quickPrint('${o.orderId}')"><i class="fas fa-print"></i></button>
+      <button class="btn-action btn-del" onclick="delOrder('${o.orderId}')"><i class="fas fa-trash"></i></button>
+    </td>
+  </tr>`).join('');
+}
+function toggleOrdSelect(id, checked) { checked ? STATE.selectedOrds.add(id) : STATE.selectedOrds.delete(id); updateOrdBulkBar(); }
+function toggleSelectAllOrd() {
+  const all = document.getElementById('selectAllOrd').checked;
+  STATE.selectedOrds.clear();
+  if (all) STATE.allOrders.forEach(o => STATE.selectedOrds.add(o.orderId));
+  updateOrdBulkBar();
+  document.querySelectorAll('#ordTbody input[type=checkbox]').forEach(cb => cb.checked = all);
+}
+function updateOrdBulkBar() {
+  const bar = document.getElementById('ordBulkBar'), n = STATE.selectedOrds.size;
+  if (bar) { if (n > 0) { bar.classList.remove('hidden'); document.getElementById('ordBulkCount').textContent = n; } else bar.classList.add('hidden'); }
+}
+function clearOrdBulkSelect() {
+  STATE.selectedOrds.clear(); updateOrdBulkBar();
+  document.querySelectorAll('#ordTbody input[type=checkbox]').forEach(cb => cb.checked = false);
+  const sa = document.getElementById('selectAllOrd'); if (sa) sa.checked = false;
+}
+function bulkUpdateOrderStatus() {
+  const status = document.getElementById('bulkStatusSel') ? document.getElementById('bulkStatusSel').value : '';
+  const courierName = document.getElementById('bulkCourierSel') ? document.getElementById('bulkCourierSel').value : '';
+  if (!status && !courierName) return;
+  const ids = [...STATE.selectedOrds]; if (!ids.length) return;
+  showLoadingOverlay(true);
+  const updates = {};
+  if (status) updates.status = status;
+  if (courierName) updates.courierName = courierName;
+  GAS.run('bulkUpdateOrders', [ids, updates], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { showToast('আপডেট সম্পন্ন', 'success'); clearOrdBulkSelect(); loadAdminOrders(); }
+  }, () => { showLoadingOverlay(false); showToast('আপডেট ব্যর্থ', 'error'); });
+}
+function bulkDeleteOrders() {
+  if (!STATE.selectedOrds.size) return;
+  if (!confirm(`${STATE.selectedOrds.size}টি অর্ডার মুছতে চান?`)) return;
+  const ids = [...STATE.selectedOrds]; let done = 0;
+  showLoadingOverlay(true);
+  ids.forEach(id => {
+    GAS.run('deleteOrder', [id], () => {
+      done++;
+      if (done === ids.length) { showLoadingOverlay(false); showToast('মুছে গেছে', 'success'); clearOrdBulkSelect(); loadAdminOrders(); }
+    });
+  });
+}
+function quickUpdateOrderStatus(orderId, status) {
+  GAS.run('updateOrderStatus', [orderId, status], res => {
+    if (res && res.success) {
+      showToast('স্ট্যাটাস আপডেট', 'success');
+      const o = STATE.allOrders.find(x => x.orderId === orderId);
+      if (o) o.status = status;
+    } else showToast((res && res.error) || 'ব্যর্থ', 'error');
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  ORDER DETAIL MODAL
+// ═══════════════════════════════════════════════
+function viewOrderDetail(orderId, defaultTab) {
+  defaultTab = defaultTab || 'info';
+  const o = STATE.allOrders.find(x => x.orderId === orderId);
+  if (!o) return;
+  STATE.currentOrderDetail = o;
+  renderOrderDetailTabs(o);
+  const tabNames = ['info', 'courier', 'timeline', 'actions'];
+  tabNames.forEach(t => {
+    const el = document.getElementById('odTab-' + t);
+    if (el) el.classList.toggle('active', t === defaultTab);
+  });
+  document.querySelectorAll('.od-tab').forEach((t, i) => t.classList.toggle('active', tabNames[i] === defaultTab));
+  document.getElementById('orderDetailModal').classList.remove('hidden');
+}
+function switchOdTab(tab) {
+  ['info', 'courier', 'timeline', 'actions'].forEach(t => {
+    const el = document.getElementById('odTab-' + t);
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  document.querySelectorAll('.od-tab').forEach((t, i) => t.classList.toggle('active', ['info', 'courier', 'timeline', 'actions'][i] === tab));
+}
+function renderOrderDetailTabs(o) {
+  const items = Array.isArray(o.items) ? o.items : [];
+  document.getElementById('odTab-info').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--bg);border-radius:var(--r-sm);padding:14px;margin-bottom:14px">
+      <div><div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px">অর্ডার ID</div><div style="font-family:monospace;font-weight:700;font-size:.85rem">${o.orderId}</div></div>
+      <div><div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px">তারিখ</div><div style="font-size:.85rem">${o.orderDate || ''}</div></div>
+      <div><div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px">গ্রাহক</div><div style="font-weight:700">${o.customerName || ''}</div></div>
+      <div><div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px">ফোন</div><div style="font-weight:700">${o.phone || ''}</div></div>
+      <div style="grid-column:1/-1"><div style="font-size:.72rem;color:var(--ink3);margin-bottom:2px">ঠিকানা</div><div>${o.address || ''}, ${o.thana || ''}, ${o.district || ''}</div></div>
+    </div>
+    <div style="background:var(--bg);border-radius:var(--r-sm);padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+      <div><strong>${o.paymentMethod || ''}</strong>${o.bKashNumber ? ' — ' + o.bKashNumber : ''}</div>
+      ${statusBadge(o.status)}
+    </div>
+    <div style="background:var(--bg);border-radius:var(--r-sm);padding:14px">
+      <div style="font-weight:700;margin-bottom:10px">পণ্য তালিকা</div>
+      ${items.map(i => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><div><strong>${i.name}</strong><br/><span style="font-size:.75rem;color:var(--ink3)">${i.color || ''}${i.color && i.size ? ' · ' : ''}${i.size || ''} × ${i.qty}</span></div><div style="font-weight:700;color:var(--brand)">৳${(i.price * i.qty).toLocaleString()}</div></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.875rem;color:var(--ink2)"><span>পণ্যের মোট</span><span>৳${Number(o.subtotal || 0).toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:.875rem;color:var(--ink2)"><span>ডেলিভারি</span><span>৳${Number(o.deliveryCharge || 80).toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-weight:800;font-size:1rem;border-top:2px solid var(--border);padding-top:8px"><span>সর্বমোট</span><span style="color:var(--brand)">৳${Number(o.total || 0).toLocaleString()}</span></div>
+    </div>
+    ${o.note ? `<div class="alert-box warn" style="margin-top:12px"><i class="fas fa-sticky-note"></i> ${o.note}</div>` : ''}`;
+
+  const courierOptions = STATE.allCouriers.map(c => `<option value="${c.name}" ${o.courierName === c.name ? 'selected' : ''}>${c.name}</option>`).join('');
+  document.getElementById('odTab-courier').innerHTML = `
+    <div class="courier-assign-box">
+      <div class="ca-title"><i class="fas fa-truck"></i> কুরিয়ার তথ্য</div>
+      ${o.courierName ? `<div class="alert-box success" style="margin-bottom:12px"><i class="fas fa-check-circle"></i> ${o.courierName}${o.trackingNumber ? ' — ' + o.trackingNumber : ''}</div>` : ''}
+      <div class="form-group"><label class="form-label">কুরিয়ার</label><select class="form-input" id="od_courierName"><option value="">বেছে নিন</option>${courierOptions}</select></div>
+      <div class="form-group"><label class="form-label">ট্র্যাকিং নম্বর</label><input class="form-input" id="od_trackingNumber" value="${o.trackingNumber || ''}"/></div>
+      <div class="form-group"><label class="form-label">কুরিয়ার স্ট্যাটাস</label><input class="form-input" id="od_courierStatus" value="${o.courierStatus || ''}"/></div>
+      <div class="form-group"><label class="form-label">অভ্যন্তরীণ নোট</label><textarea class="form-input" id="od_internalNote" rows="2">${o.internalNote || ''}</textarea></div>
+      <button class="btn-add-new" onclick="saveCourierAssign('${o.orderId}')"><i class="fas fa-save"></i> সংরক্ষণ</button>
+    </div>`;
+
+  const statusFlow = [
+    { key: 'Pending', label: 'অর্ডার গ্রহণ', time: o.orderDate },
+    { key: 'Processing', label: 'প্রসেসিং', time: '' },
+    { key: 'Shipped', label: 'শিপড', time: o.shippedDate },
+    { key: 'Delivered', label: 'ডেলিভার্ড', time: o.deliveredDate },
+  ];
+  const ci = statusFlow.findIndex(s => s.key === o.status);
+  document.getElementById('odTab-timeline').innerHTML = `
+    <div class="order-timeline">
+      ${statusFlow.map((s, i) => {
+        const done = i < ci;
+        const active = i === ci && o.status !== 'Cancelled';
+        return `<div class="ot-item">
+          <div class="ot-dot ${active ? 'current' : done ? 'done' : ''}"></div>
+          <div class="ot-label" style="${active ? 'color:var(--brand)' : ''}">${s.label}</div>
+          ${s.time ? `<div class="ot-time">${s.time}</div>` : ''}
+        </div>`;
+      }).join('')}
+      ${o.status === 'Cancelled' ? `<div class="ot-item"><div class="ot-dot" style="background:#c62828;border-color:#c62828"></div><div class="ot-label" style="color:#c62828">অর্ডার বাতিল</div></div>` : ''}
+    </div>`;
+
+  document.getElementById('odTab-actions').innerHTML = `
+    <div class="settings-card">
+      <div class="sc-header"><i class="fas fa-exchange-alt"></i> স্ট্যাটাস পরিবর্তন</div>
+      <div class="sc-body" style="display:flex;flex-wrap:wrap;gap:8px">
+        ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s =>
+          `<button class="btn-action ${o.status === s ? 'btn-edit' : 'btn-neutral'}" style="padding:9px 16px" onclick="updateOrderStatusAndRefresh('${o.orderId}','${s}')">${statusBadge(s)}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="settings-card" style="margin-top:12px">
+      <div class="sc-header"><i class="fas fa-print"></i> ইনভয়েস</div>
+      <div class="sc-body"><button class="btn-action btn-print" style="padding:10px 20px" onclick="printInvoice()"><i class="fas fa-print"></i> প্রিন্ট করুন</button></div>
+    </div>
+    <div class="settings-card" style="margin-top:12px">
+      <div class="sc-header" style="color:#c62828"><i class="fas fa-trash"></i> মুছুন</div>
+      <div class="sc-body"><button class="btn-action btn-del" style="padding:10px 20px" onclick="delOrder('${o.orderId}');closeOrderDetail()"><i class="fas fa-trash"></i> মুছে দিন</button></div>
+    </div>`;
+}
+
+function saveCourierAssign(orderId) {
+  const data = {
+    courierName: document.getElementById('od_courierName').value,
+    trackingNumber: document.getElementById('od_trackingNumber').value.trim(),
+    courierStatus: document.getElementById('od_courierStatus').value.trim(),
+    internalNote: document.getElementById('od_internalNote').value.trim(),
+  };
+  showLoadingOverlay(true);
+  GAS.run('updateOrderCourier', [orderId, data], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      showToast('সংরক্ষণ হয়েছে', 'success');
+      // STATE আপডেট
+      const o = STATE.allOrders.find(x => x.orderId === orderId);
+      if (o) Object.assign(o, data);
+      loadAdminOrders();
+    }
+  });
+}
+function updateOrderStatusAndRefresh(orderId, status) {
+  showLoadingOverlay(true);
+  GAS.run('updateOrderStatus', [orderId, status], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      showToast('আপডেট হয়েছে', 'success');
+      const o = STATE.allOrders.find(x => x.orderId === orderId);
+      if (o) { o.status = status; STATE.currentOrderDetail = o; renderOrderDetailTabs(o); }
+      loadAdminOrders();
+    }
+  });
+}
+function closeOrderDetail() { document.getElementById('orderDetailModal').classList.add('hidden'); }
+function delOrder(orderId) {
+  if (!confirm('মুছতে চান?')) return;
+  showLoadingOverlay(true);
+  GAS.run('deleteOrder', [orderId], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { showToast('মুছে গেছে', 'success'); loadAdminOrders(); }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  PRINT INVOICE
+// ═══════════════════════════════════════════════
+function printInvoice() {
+  const o = STATE.currentOrderDetail; if (!o) return;
+  const items = Array.isArray(o.items) ? o.items : [];
+  document.getElementById('printArea').innerHTML = `
+    <div style="font-family:'Hind Siliguri',sans-serif;max-width:600px;margin:0 auto;color:#1c1c1c">
+      <div style="text-align:center;border-bottom:2px solid #c8102e;padding-bottom:16px;margin-bottom:16px">
+        <h1 style="font-size:2rem;font-weight:900;color:#c8102e;margin:0">StyleBD</h1>
+        <p style="color:#555;font-size:.85rem;margin:4px 0">ডেলিভারি ইনভয়েস</p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;font-size:.85rem">
+        <div><strong>ডেলিভারি ঠিকানা</strong><br/>${o.customerName}<br/>${o.phone}<br/>${o.address}, ${o.thana || ''}, ${o.district}</div>
+        <div><strong>অর্ডার তথ্য</strong><br/>ID: ${o.orderId}<br/>তারিখ: ${o.orderDate}<br/>পেমেন্ট: ${o.paymentMethod}<br/>স্ট্যাটাস: ${o.status}</div>
+      </div>
+      ${o.courierName ? `<div style="background:#f3e5f5;padding:10px 14px;border-radius:6px;margin-bottom:14px;font-size:.85rem"><strong>কুরিয়ার:</strong> ${o.courierName} ${o.trackingNumber ? '— ' + o.trackingNumber : ''}</div>` : ''}
+      <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:14px">
+        <thead><tr style="background:#f5f4f0"><th style="padding:8px;text-align:left;border:1px solid #e8e5de">পণ্য</th><th style="padding:8px;text-align:center;border:1px solid #e8e5de">পরিমাণ</th><th style="padding:8px;text-align:right;border:1px solid #e8e5de">মূল্য</th></tr></thead>
+        <tbody>${items.map(i => `<tr><td style="padding:8px;border:1px solid #e8e5de">${i.name}${i.color ? ' (' + i.color + ')' : ''}${i.size ? ' / ' + i.size : ''}</td><td style="padding:8px;text-align:center;border:1px solid #e8e5de">${i.qty}</td><td style="padding:8px;text-align:right;border:1px solid #e8e5de">৳${(i.price * i.qty).toLocaleString()}</td></tr>`).join('')}</tbody>
+      </table>
+      <div style="text-align:right;font-size:.85rem">
+        <div>পণ্যের মোট: ৳${Number(o.subtotal || 0).toLocaleString()}</div>
+        <div>ডেলিভারি: ৳${Number(o.deliveryCharge || 80).toLocaleString()}</div>
+        <div style="font-size:1rem;font-weight:800;border-top:2px solid #1c1c1c;padding-top:6px;margin-top:6px">সর্বমোট: ৳${Number(o.total || 0).toLocaleString()}</div>
+      </div>
+      ${o.note ? `<div style="margin-top:12px;background:#fff8e1;padding:8px 12px;border-radius:4px;font-size:.82rem">নোট: ${o.note}</div>` : ''}
+    </div>`;
+  window.print();
+  GAS.run('incrementPrintCount', [o.orderId], () => {});
+  setTimeout(() => document.getElementById('printArea').innerHTML = '', 2000);
+}
+function quickPrint(orderId) {
+  STATE.currentOrderDetail = STATE.allOrders.find(x => x.orderId === orderId);
+  if (STATE.currentOrderDetail) printInvoice();
+}
+
+// ═══════════════════════════════════════════════
+//  CMS SETTINGS
+// ═══════════════════════════════════════════════
+function loadCmsSettings() {
+  GAS.run('getSiteSettings', [], res => {
+    if (!res || !res.success) return;
+    const s = res.data;
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) { if (el.type === 'checkbox') el.checked = val === 'true' || val === true; else el.value = val || ''; }
+    };
+    ['shopName', 'shopTagline', 'shopPhone', 'shopEmail', 'shopAddress', 'shopFacebook', 'shopWhatsapp',
+     'announcementText', 'heroTag', 'heroTitle', 'heroSubtitle', 'heroCTA1', 'heroCTA2',
+     'footerAbout', 'footerCopyright', 'deliveryChargeInDhaka', 'deliveryChargeOutDhaka',
+     'whatsappNumber', 'shopLogo'].forEach(k => setVal('cms_' + k, s[k]));
+    setVal('cms_announcementActive', s.announcementActive);
+    setVal('cms_whatsappOrderActive', s.whatsappOrderActive);
+    setVal('cms_primaryColor', s.primaryColor || '#c8102e');
+    setVal('cms_primaryColorHex', s.primaryColor || '#c8102e');
+    loadCourierList();
+  });
+}
+function saveCmsSection(section) {
+  const getVal = id => { const el = document.getElementById(id); if (!el) return ''; return el.type === 'checkbox' ? String(el.checked) : el.value; };
+  let updates = {};
+  if (section === 'general') { updates = { shopName: getVal('cms_shopName'), shopTagline: getVal('cms_shopTagline'), shopPhone: getVal('cms_shopPhone'), shopEmail: getVal('cms_shopEmail'), shopAddress: getVal('cms_shopAddress'), shopFacebook: getVal('cms_shopFacebook'), shopWhatsapp: getVal('cms_shopWhatsapp'), announcementActive: getVal('cms_announcementActive'), announcementText: getVal('cms_announcementText') }; }
+  else if (section === 'hero') { updates = { heroTag: getVal('cms_heroTag'), heroTitle: getVal('cms_heroTitle'), heroSubtitle: getVal('cms_heroSubtitle'), heroCTA1: getVal('cms_heroCTA1'), heroCTA2: getVal('cms_heroCTA2') }; }
+  else if (section === 'footer') { updates = { footerAbout: getVal('cms_footerAbout'), footerCopyright: getVal('cms_footerCopyright') }; }
+  else if (section === 'delivery') { updates = { deliveryChargeInDhaka: getVal('cms_deliveryChargeInDhaka'), deliveryChargeOutDhaka: getVal('cms_deliveryChargeOutDhaka'), whatsappOrderActive: getVal('cms_whatsappOrderActive'), whatsappNumber: getVal('cms_whatsappNumber') }; }
+  else if (section === 'appearance') { const color = document.getElementById('cms_primaryColorHex').value || document.getElementById('cms_primaryColor').value; updates = { primaryColor: color, shopLogo: getVal('cms_shopLogo') }; }
+  showLoadingOverlay(true);
+  GAS.run('updateSiteSettings', [updates], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { showToast('সংরক্ষণ হয়েছে ✓', 'success'); applySettings(updates); }
+    else showToast('ব্যর্থ হয়েছে', 'error');
+  });
+}
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  // ক্লিক হওয়া ট্যাব active করি
+  const allTabs = document.querySelectorAll('.settings-tabs .stab');
+  const tabIndex = ['general', 'hero', 'footer', 'delivery', 'couriers', 'appearance'].indexOf(tab);
+  if (tabIndex >= 0 && allTabs[tabIndex]) allTabs[tabIndex].classList.add('active');
+  const sec = document.getElementById('stab-' + tab); if (sec) sec.classList.add('active');
+}
+function previewPrimaryColor(val) { document.documentElement.style.setProperty('--brand', val); document.getElementById('cms_primaryColorHex').value = val; }
+
+// ═══════════════════════════════════════════════
+//  COURIER MANAGEMENT
+// ═══════════════════════════════════════════════
+function loadCourierList() {
+  GAS.run('getCouriers', [], res => {
+    if (!res || !res.success) return;
+    STATE.allCouriers = res.data || [];
+    renderCourierList();
+    updateCourierDropdowns();
+  });
+}
+function renderCourierList() {
+  const wrap = document.getElementById('courierListWrap');
+  if (!wrap) return;
+  if (!STATE.allCouriers.length) { wrap.innerHTML = '<div style="color:var(--ink3);font-size:.875rem;text-align:center;padding:24px">কোনো কুরিয়ার যোগ করা হয়নি</div>'; return; }
+  wrap.innerHTML = STATE.allCouriers.map(c => `
+    <div class="courier-card">
+      <div class="cc-info">
+        <div class="cc-name"><i class="fas fa-truck" style="color:var(--brand);margin-right:6px"></i>${c.name}</div>
+        ${c.trackingUrl ? `<div class="cc-url">${c.trackingUrl}</div>` : ''}
+      </div>
+      <div class="cc-actions">
+        <button class="btn-action btn-del" onclick="deleteCourier('${c.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+function openCourierForm() { document.getElementById('cfName').value = ''; document.getElementById('cfUrl').value = ''; document.getElementById('courierFormModal').classList.remove('hidden'); }
+function closeCourierForm() { document.getElementById('courierFormModal').classList.add('hidden'); }
+function saveCourierForm() {
+  const name = document.getElementById('cfName').value.trim();
+  if (!name) { showToast('কুরিয়ারের নাম দিন', 'error'); return; }
+  const data = { name, trackingUrl: document.getElementById('cfUrl').value.trim() };
+  showLoadingOverlay(true);
+  GAS.run('addCourier', [data], res => { showLoadingOverlay(false); if (res && res.success) { showToast('কুরিয়ার যোগ হয়েছে', 'success'); closeCourierForm(); loadCourierList(); } });
+}
+function deleteCourier(id) {
+  if (!confirm('মুছতে চান?')) return;
+  showLoadingOverlay(true);
+  GAS.run('deleteCourier', [id], res => { showLoadingOverlay(false); if (res && res.success) { showToast('মুছে গেছে', 'success'); loadCourierList(); } });
+}
+
+// ═══════════════════════════════════════════════
+//  PRODUCT FORM HELPERS
+// ═══════════════════════════════════════════════
+function openProductForm(product) {
+  formColors = []; formSizes = []; formTags = [];
+  const isEdit = !!product;
+  document.getElementById('pfTitle').textContent = isEdit ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন';
+  document.getElementById('pfId').value = isEdit ? product.id : '';
+  document.getElementById('pfName').value = isEdit ? product.name : '';
+  document.getElementById('pfDesc').value = isEdit ? (product.description || '') : '';
+  document.getElementById('pfPrice').value = isEdit ? product.price : '';
+  document.getElementById('pfDiscount').value = isEdit ? (product.discountPrice || '') : '';
+  document.getElementById('pfStock').value = isEdit ? (product.stock || 0) : '';
+  document.getElementById('pfCategory').value = isEdit ? (product.category || '') : '';
+  document.getElementById('pfSubCat').value = isEdit ? (product.subCategory || '') : '';
+  document.getElementById('pfImages').value = isEdit ? (product.images || []).join('\n') : '';
+  document.getElementById('pfFeatured').checked = isEdit ? (product.featured || false) : false;
+  setSelectedHomeSection(isEdit ? (product.homeSection || '') : '');
+  if (isEdit) (product.colors || []).forEach(c => formColors.push(c));
+  renderColorInputs();
+  if (isEdit) formSizes = [...(product.sizes || [])];
+  renderSizeTags();
+  document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.toggle('selected', formSizes.includes(b.dataset.size)));
+  if (isEdit) formTags = [...(product.tags || [])];
+  renderTagPills();
+  document.getElementById('productFormModal').classList.remove('hidden');
+}
+function closeProductForm() { document.getElementById('productFormModal').classList.add('hidden'); }
+function editProduct(id) { const p = STATE.allProducts.find(x => x.id === id); if (p) openProductForm(p); }
+function delProduct(id, name) {
+  if (!confirm(`"${name}" মুছে দিতে চান?`)) return;
+  showLoadingOverlay(true);
+  GAS.run('deleteProduct', [id], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { showToast('পণ্য মুছে গেছে', 'success'); loadAdminProducts(); }
+    else showToast(res && res.error ? res.error : 'ব্যর্থ', 'error');
+  });
+}
+function saveProductForm() {
+  const id = document.getElementById('pfId').value;
+  const p = {
+    id,
+    name: document.getElementById('pfName').value.trim(),
+    description: document.getElementById('pfDesc').value.trim(),
+    price: Number(document.getElementById('pfPrice').value) || 0,
+    discountPrice: Number(document.getElementById('pfDiscount').value) || 0,
+    stock: Number(document.getElementById('pfStock').value) || 0,
+    category: document.getElementById('pfCategory').value,
+    subCategory: document.getElementById('pfSubCat').value.trim(),
+    images: document.getElementById('pfImages').value.split('\n').map(s => s.trim()).filter(Boolean),
+    colors: formColors,
+    sizes: formSizes,
+    tags: formTags,
+    featured: document.getElementById('pfFeatured').checked,
+    homeSection: getSelectedHomeSection(),
+  };
+  if (!p.name || !p.price) { showToast('নাম ও মূল্য আবশ্যক', 'error'); return; }
+  showLoadingOverlay(true);
+  const fn = id ? 'updateProduct' : 'addProduct';
+  GAS.run(fn, [p], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { showToast(id ? 'আপডেট হয়েছে' : 'পণ্য যোগ হয়েছে', 'success'); closeProductForm(); loadAdminProducts(); renderHomeSections(); }
+    else showToast(res && res.error ? res.error : 'ব্যর্থ', 'error');
+  });
+}
+
+// Home Section Selector
+function initHSSelectorListeners() {
+  document.querySelectorAll('.hs-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.hs-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      const radio = opt.querySelector('input[type=radio]'); if (radio) radio.checked = true;
+    });
+  });
+}
+function getSelectedHomeSection() { const checked = document.querySelector('input[name="pfHomeSection"]:checked'); return checked ? checked.value : ''; }
+function setSelectedHomeSection(val) {
+  document.querySelectorAll('.hs-option').forEach(opt => {
+    const isMatch = opt.dataset.val === val;
+    opt.classList.toggle('active', isMatch);
+    const radio = opt.querySelector('input[type=radio]'); if (radio) radio.checked = isMatch;
+  });
+}
+
+// Colors
+function addColorEntry() { formColors.push({ hex: '#e63946', name: 'লাল' }); renderColorInputs(); }
+function renderColorInputs() {
+  const row = document.getElementById('colorInputRow');
+  row.innerHTML = formColors.map((c, i) => `
+    <div class="color-entry">
+      <input type="color" value="${c.hex || '#000'}" oninput="formColors[${i}].hex=this.value"/>
+      <input type="text" value="${c.name || ''}" placeholder="নাম" style="width:46px;font-size:.68rem;border:1px solid var(--border);border-radius:4px;padding:2px 4px;text-align:center;margin-top:2px" oninput="formColors[${i}].name=this.value"/>
+      <button type="button" class="color-entry-del" onclick="removeColor(${i})">×</button>
+    </div>`).join('') + `<button type="button" class="btn-add-color" onclick="addColorEntry()"><i class="fas fa-plus"></i></button>`;
+}
+function removeColor(i) { formColors.splice(i, 1); renderColorInputs(); }
+
+// Sizes
+function toggleSizePreset(btn) {
+  const s = btn.dataset.size; btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) { if (!formSizes.includes(s)) formSizes.push(s); } else formSizes = formSizes.filter(x => x !== s);
+  renderSizeTags();
+}
+function handleSizeInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = (document.getElementById('sizeTagInput') ? document.getElementById('sizeTagInput').textContent : '').trim();
+    if (v && !formSizes.includes(v)) { formSizes.push(v); renderSizeTags(); }
+    if (document.getElementById('sizeTagInput')) document.getElementById('sizeTagInput').textContent = '';
+  }
+}
+function removeSize(s) { formSizes = formSizes.filter(x => x !== s); renderSizeTags(); document.querySelectorAll('.size-preset-btn').forEach(b => { if (b.dataset.size === s) b.classList.remove('selected'); }); }
+function renderSizeTags() {
+  const wrap = document.getElementById('sizeTagWrap');
+  if (!wrap) return;
+  wrap.innerHTML = formSizes.map(s => `<span class="tag-pill">${s}<button onclick="removeSize('${s}')" type="button">×</button></span>`).join('') + `<div class="tag-input-inner" id="sizeTagInput" contenteditable="true" onkeydown="handleSizeInput(event)" placeholder="কাস্টম সাইজ..."></div>`;
+}
+
+// Tags
+function handleTagInput(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/,$/, '');
+    if (v && !formTags.includes(v)) { formTags.push(v); renderTagPills(); }
+    e.target.value = '';
+  }
+}
+function removeTag(t) { formTags = formTags.filter(x => x !== t); renderTagPills(); }
+function renderTagPills() {
+  const wrap = document.getElementById('tagWrap');
+  if (!wrap) return;
+  wrap.innerHTML = formTags.map(t => `<span class="tag-pill">${t}<button onclick="removeTag('${t}')" type="button">×</button></span>`).join('') + `<input class="tag-input-inner" type="text" id="tagInput" placeholder="ট্যাগ লিখে Enter চাপুন" onkeydown="handleTagInput(event)"/>`;
+}
+
+// ═══════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════
+function statusBadge(s) {
+  const m = { Pending: 'badge-pending', Processing: 'badge-processing', Shipped: 'badge-shipped', Delivered: 'badge-delivered', Cancelled: 'badge-cancelled' };
+  const bn = { Pending: 'পেন্ডিং', Processing: 'প্রসেসিং', Shipped: 'শিপড', Delivered: 'ডেলিভার্ড', Cancelled: 'বাতিল' };
+  return `<span class="badge ${m[s] || 'badge-pending'}">${bn[s] || s}</span>`;
+}
+
+let _toastTimer;
+function showToast(msg, type = 'info') {
+  clearTimeout(_toastTimer);
+  const el = document.getElementById('toast');
+  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+  el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>${msg}`;
+  el.className = `toast ${type}`;
+  el.classList.remove('hidden');
+  _toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
+}
+
+// Modal overlay close handlers
+document.getElementById('productFormModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeProductForm(); });
+document.getElementById('orderDetailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeOrderDetail(); });
+document.getElementById('courierFormModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCourierForm(); });
+document.getElementById('adminLoginPage').addEventListener('click', e => { if (e.target === e.currentTarget) hideAdminLogin(); });
+</script>
+</body>
+</html>
