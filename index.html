@@ -1261,7 +1261,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 // ═══════════════════════════════════════════════
 //  CONFIG — আপনার GAS Web App URL এখানে দিন
 // ═══════════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwQpN99gMCeHeRok6UIcEjDSuTzW5JAetTbwCjW8K4z6efhj5NDWlrBppWZ7UYxtKwpZg/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwWKgwJPjlcSW0fnC59Uy3XIMYwyJhEssFzJNrTdz6gWCZas3H2lOP4EqzawpuXsAo/exec";
 
 // ═══════════════════════════════════════════════
 //  LOADING OVERLAY
@@ -1681,8 +1681,8 @@ function switchModalTab(tab, el) {
 
 function renderModalDetails(p) {
   const ep = effectivePrice(p), disc = discountPct(p);
-  const reviews = getReviews(p.id);
-  const avgRating = reviews.length ? (reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / reviews.length).toFixed(1) : '৫.০';
+  const avgRating = '—';
+const reviews = { length: 0 };
   const starsHTML = r => '★'.repeat(Math.round(Number(r) || 0)) + '☆'.repeat(5 - Math.round(Number(r) || 0));
   const hasColors = (p.colors || []).length > 0, hasSizes = (p.sizes || []).length > 0;
   let colorsHTML = '', sizesHTML = '';
@@ -1722,7 +1722,18 @@ function renderModalDetails(p) {
 }
 
 function renderModalReviews(productId) {
-  const reviews = getReviews(productId);
+  const reviewsEl = document.getElementById('modalTabReviews');
+  if (reviewsEl) reviewsEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink3)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>';
+
+  GAS.run('getReviews', [productId], res => {
+    const reviews = (res && res.success && Array.isArray(res.data)) ? res.data : [];
+    _renderReviewsUI(productId, reviews);
+  }, () => {
+    _renderReviewsUI(productId, []);
+  });
+}
+
+function _renderReviewsUI(productId, reviews) {
   const badgeEl = document.getElementById('reviewCountBadge');
   if (badgeEl) badgeEl.textContent = reviews.length;
   const avg = reviews.length ? reviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / reviews.length : 0;
@@ -1759,17 +1770,34 @@ function renderModalReviews(productId) {
 }
 
 function submitReview(productId) {
-  const nameEl = document.getElementById('reviewName');
-  const textEl = document.getElementById('reviewText');
+  const nameEl   = document.getElementById('reviewName');
+  const textEl   = document.getElementById('reviewText');
   const ratingEl = document.querySelector(`input[name="rstar_${productId}"]:checked`);
-  const name = nameEl ? nameEl.value.trim() : '';
-  const text = textEl ? textEl.value.trim() : '';
-  if (!name) { showToast('নাম দিন', 'error'); return; }
+  const name     = nameEl ? nameEl.value.trim() : '';
+  const text     = textEl ? textEl.value.trim() : '';
+
+  if (!name)     { showToast('নাম দিন', 'error'); return; }
   if (!ratingEl) { showToast('রেটিং দিন', 'error'); return; }
-  addReview(productId, { name, rating: Number(ratingEl.value), text: text || '👍' });
-  showToast('রিভিউ যোগ হয়েছে!', 'success');
-  renderModalReviews(productId);
+
+  const reviewData = {
+    productId,
+    name,
+    rating : Number(ratingEl.value),
+    text   : text || '👍',
+  };
+
+  showLoadingOverlay(true);
+  GAS.run('addReview', [reviewData], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      showToast('রিভিউ যোগ হয়েছে!', 'success');
+      renderModalReviews(productId);
+    } else {
+      showToast('রিভিউ সেভ ব্যর্থ', 'error');
+    }
+  }, () => { showLoadingOverlay(false); showToast('সার্ভার ত্রুটি', 'error'); });
 }
+
 function selectModalColor(idx, name, el) {
   STATE.selectedColor = STATE.modalProduct.colors[idx];
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
