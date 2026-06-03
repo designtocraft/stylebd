@@ -574,6 +574,16 @@ textarea.form-input{resize:vertical;min-height:80px}
   .form-row{grid-template-columns:1fr}.admin-nav-btn{padding:6px 10px;font-size:.75rem}
   .tracking-input-row{flex-direction:column}
 }
+/* CATEGORY MANAGER */
+.cat-manage-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:.2s}
+.cat-manage-card:hover{box-shadow:var(--shadow)}
+.cat-manage-emoji{font-size:1.4rem;width:36px;text-align:center;flex-shrink:0}
+.cat-manage-info{flex:1;min-width:0}
+.cat-manage-name{font-weight:700;font-size:.9rem}
+.cat-manage-meta{font-size:.72rem;color:var(--ink3);margin-top:2px}
+.cat-manage-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.cat-inactive{opacity:.45}
+<!-- ═══════════════ CSS এর পরে এখান থেকে শুরু ═══════════════ -->
 </style>
 </head>
 <body>
@@ -852,7 +862,7 @@ textarea.form-input{resize:vertical;min-height:80px}
       <div class="success-title">অর্ডার সম্পন্ন! 🎉</div>
       <p style="color:var(--ink3);margin-bottom:6px">আপনার অর্ডার নম্বর</p>
       <div class="success-oid" id="successOid">—</div>
-      <p class="success-sub">আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব। কেনাকাটার জন্য ধন্যবাক!</p>
+      <p class="success-sub">আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব। কেনাকাটার জন্য ধন্যবাদ!</p>
       <div class="btn-group-success">
         <button class="btn-hero-primary" onclick="trackSuccessOrder()"><i class="fas fa-truck"></i> অর্ডার ট্র্যাক করুন</button>
         <button class="btn-hero-secondary" onclick="goHome()"><i class="fas fa-home"></i> হোমে ফিরুন</button>
@@ -1037,6 +1047,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="stab" onclick="switchSettingsTab('footer')">🔻 ফুটার</div>
         <div class="stab" onclick="switchSettingsTab('delivery')">🚚 ডেলিভারি</div>
         <div class="stab" onclick="switchSettingsTab('couriers')">📬 কুরিয়ার</div>
+        <div class="stab" onclick="switchSettingsTab('categories')">🏷️ ক্যাটাগরি</div>
         <div class="stab" onclick="switchSettingsTab('appearance')">🎨 চেহারা</div>
       </div>
       <div class="settings-section active" id="stab-general">
@@ -1122,6 +1133,15 @@ textarea.form-input{resize:vertical;min-height:80px}
           <div id="courierListWrap" style="padding:16px"></div>
         </div>
       </div>
+      <div class="settings-section" id="stab-categories">
+        <div class="table-card">
+          <div class="tc-header">
+            <div class="tc-title"><i class="fas fa-tags" style="color:var(--brand)"></i> ক্যাটাগরি ম্যানেজমেন্ট</div>
+            <button class="btn-add-new" onclick="openCategoryForm()"><i class="fas fa-plus"></i> নতুন ক্যাটাগরি</button>
+          </div>
+          <div id="categoryListWrap" style="padding:16px"></div>
+        </div>
+      </div>
       <div class="settings-section" id="stab-appearance">
         <div class="settings-card">
           <div class="sc-header"><i class="fas fa-palette"></i> রঙ ও থিম</div>
@@ -1142,7 +1162,9 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
-<!-- Product Form Modal -->
+<!-- ═══════════════════════════════════════════════
+     PRODUCT FORM MODAL — multi-category সাপোর্ট
+     ═══════════════════════════════════════════════ -->
 <div id="productFormModal" class="form-modal hidden">
   <div class="form-modal-card">
     <div class="fm-header">
@@ -1153,16 +1175,26 @@ textarea.form-input{resize:vertical;min-height:80px}
       <input type="hidden" id="pfId"/>
       <div class="form-row">
         <div class="form-group"><label class="form-label">পণ্যের নাম *</label><input class="form-input" id="pfName"/></div>
-        <div class="form-group"><label class="form-label">ক্যাটাগরি</label>
-          <select class="form-input" id="pfCategory">
-            <option value="">ক্যাটাগরি বেছে নিন</option>
-            <option>পুরুষ-পোশাক</option><option>মহিলা-পোশাক</option><option>শিশু-পোশাক</option>
-            <option>জুতা</option><option>ব্যাগ</option><option>ইলেকট্রনিক্স</option>
-            <option>গৃহস্থালি</option><option>সৌন্দর্য</option><option>খেলাধুলা</option>
-            <option>বই-শিক্ষা</option><option>অফার</option><option>অন্যান্য</option>
-          </select>
+        <div class="form-group">
+          <label class="form-label">সাব-ক্যাটাগরি</label>
+          <input class="form-input" id="pfSubCat" placeholder="ঐচ্ছিক"/>
         </div>
       </div>
+
+      <!-- ★ MULTI-CATEGORY SELECTOR ★ -->
+      <div class="form-group">
+        <label class="form-label">ক্যাটাগরি <span style="color:var(--ink3);font-weight:400;font-size:.75rem">(একাধিক বেছে নিন)</span></label>
+        <div id="pfCategoryChips" class="tag-input-wrap" style="min-height:48px;cursor:default">
+          <!-- JS দিয়ে তৈরি হবে -->
+        </div>
+        <div id="pfCategoryDropdown" style="border:1.5px solid var(--border);border-top:none;border-radius:0 0 var(--r-sm) var(--r-sm);background:var(--surface);max-height:200px;overflow-y:auto;display:none;position:relative;z-index:10">
+          <!-- JS দিয়ে তৈরি হবে -->
+        </div>
+        <button type="button" style="margin-top:6px;background:var(--bg);border:1.5px dashed var(--border);border-radius:var(--r-sm);padding:5px 14px;font-size:.8rem;color:var(--ink3);cursor:pointer;width:100%" onclick="toggleCategoryDropdown()">
+          <i class="fas fa-plus"></i> ক্যাটাগরি যোগ করুন
+        </button>
+      </div>
+
       <div class="form-group"><label class="form-label">বিবরণ</label><textarea class="form-input" id="pfDesc" rows="2"></textarea></div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">মূল্য (৳) *</label><input class="form-input" id="pfPrice" type="number"/></div>
@@ -1170,7 +1202,10 @@ textarea.form-input{resize:vertical;min-height:80px}
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">স্টক</label><input class="form-input" id="pfStock" type="number"/></div>
-        <div class="form-group"><label class="form-label">সাব-ক্যাটাগরি</label><input class="form-input" id="pfSubCat"/></div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
+          <input type="checkbox" id="pfFeatured" style="width:18px;height:18px;cursor:pointer;accent-color:var(--brand)"/>
+          <label for="pfFeatured" style="font-size:.875rem;font-weight:600;cursor:pointer">ফিচার্ড পণ্য</label>
+        </div>
       </div>
       <div class="form-group"><label class="form-label">ছবির URL (প্রতি লাইনে একটি)</label><textarea class="form-input" id="pfImages" rows="3" placeholder="https://example.com/img1.jpg"></textarea></div>
       <div class="form-group"><label class="form-label">কালার</label>
@@ -1204,10 +1239,6 @@ textarea.form-input{resize:vertical;min-height:80px}
           <label class="hs-option" data-val="new"><input type="radio" name="pfHomeSection" value="new"/><span class="hs-emoji">🆕</span><span class="hs-label">নতুন পণ্য</span></label>
           <label class="hs-option" data-val="popular"><input type="radio" name="pfHomeSection" value="popular"/><span class="hs-emoji">🔥</span><span class="hs-label">জনপ্রিয়</span></label>
         </div>
-      </div>
-      <div class="form-group" style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="pfFeatured" style="width:18px;height:18px;cursor:pointer;accent-color:var(--brand)"/>
-        <label for="pfFeatured" style="font-size:.875rem;font-weight:600;cursor:pointer">ফিচার্ড পণ্য</label>
       </div>
     </div>
     <div class="fm-footer">
@@ -1255,13 +1286,51 @@ textarea.form-input{resize:vertical;min-height:80px}
   </div>
 </div>
 
+<!-- Category Form Modal -->
+<div id="categoryFormModal" class="form-modal hidden">
+  <div class="form-modal-card" style="max-width:440px">
+    <div class="fm-header">
+      <div class="fm-title" id="cfmTitle">নতুন ক্যাটাগরি</div>
+      <button class="fm-close" onclick="closeCategoryForm()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="fm-body">
+      <input type="hidden" id="cfmId"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">ইমোজি</label>
+          <input class="form-input" id="cfmEmoji" placeholder="🛍️" style="font-size:1.4rem;text-align:center"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ক্যাটাগরির নাম *</label>
+          <input class="form-input" id="cfmName" placeholder="যেমন: পুরুষ-পোশাক"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">সর্ট অর্ডার</label>
+        <input class="form-input" id="cfmOrder" type="number" placeholder="1"/>
+      </div>
+      <div class="toggle-row" style="padding:10px 0">
+        <div class="toggle-row-info">
+          <div class="tlabel">সক্রিয়</div>
+          <div class="tdesc">নিষ্ক্রিয় হলে সাইটে দেখাবে না</div>
+        </div>
+        <label class="toggle-switch"><input type="checkbox" id="cfmActive" checked/><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="fm-footer">
+      <button class="btn-action btn-del" onclick="closeCategoryForm()" style="padding:9px 18px">বাতিল</button>
+      <button class="btn-action btn-edit" onclick="saveCategoryForm()" style="padding:9px 22px"><i class="fas fa-save"></i> সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
 <div id="printArea"></div>
 
 <script>
 // ═══════════════════════════════════════════════
 //  CONFIG — আপনার GAS Web App URL এখানে দিন
 // ═══════════════════════════════════════════════
-const GAS_URL = "https://script.google.com/macros/s/AKfycbwWKgwJPjlcSW0fnC59Uy3XIMYwyJhEssFzJNrTdz6gWCZas3H2lOP4EqzawpuXsAo/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxZKb4daCf-VSGXl1fA5HDQ8r1yTfqrUkl0VOukS-SvGKGEYiolZrsxNHknXuC_dL2F/exec";
 
 // ═══════════════════════════════════════════════
 //  LOADING OVERLAY
@@ -1271,7 +1340,6 @@ function showLoadingOverlay(show) {
   if (!el) return;
   el.style.display = show ? 'flex' : 'none';
 }
-
 function hideInitialLoader() {
   const l = document.getElementById('pageLoader');
   if (!l) return;
@@ -1307,27 +1375,6 @@ function updateDeliveryZone() {
 }
 
 // ═══════════════════════════════════════════════
-//  REVIEWS — localStorage ভিত্তিক
-// ═══════════════════════════════════════════════
-function getReviews(pid) {
-  try {
-    const raw = localStorage.getItem('sbd_reviews_' + pid);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch(e) { return []; }
-}
-function saveReviews(pid, rv) {
-  try { localStorage.setItem('sbd_reviews_' + pid, JSON.stringify(rv)); } catch(e) {}
-}
-function addReview(pid, review) {
-  const rv = getReviews(pid);
-  rv.unshift({ ...review, id: Date.now(), date: new Date().toLocaleDateString('bn-BD') });
-  saveReviews(pid, rv);
-  return rv;
-}
-
-// ═══════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════
 let STATE = {
@@ -1341,30 +1388,111 @@ let STATE = {
   galleryIdx: 0,
   filters: { colors: [], sizes: [], instock: false, sale: false, featured: false },
   allOrders: [], allCouriers: [],
+  allCategories: [],
   viewMode: 'grid', lastOrderId: null,
   selectedProds: new Set(), selectedOrds: new Set(),
   currentOrderDetail: null,
 };
 try { STATE.cart = JSON.parse(localStorage.getItem('sbd_cart') || '[]') || []; } catch(e) { STATE.cart = []; }
 
-let formColors = [], formSizes = [], formTags = [];
+// ═══════════════════════════════════════════════
+//  PRODUCT FORM STATE — multi-category
+// ═══════════════════════════════════════════════
+let formColors = [], formSizes = [], formTags = [], formCategories = [];
+
+// ডিফল্ট ক্যাটাগরি তালিকা (ডায়নামিক ক্যাটাগরি না থাকলে fallback)
+const DEFAULT_CATEGORIES = [
+  { name: 'পুরুষ-পোশাক', emoji: '👔' }, { name: 'মহিলা-পোশাক', emoji: '👗' },
+  { name: 'শিশু-পোশাক', emoji: '🧒' }, { name: 'জুতা', emoji: '👟' },
+  { name: 'ব্যাগ', emoji: '👜' }, { name: 'ইলেকট্রনিক্স', emoji: '📱' },
+  { name: 'গৃহস্থালি', emoji: '🏠' }, { name: 'সৌন্দর্য', emoji: '💄' },
+  { name: 'খেলাধুলা', emoji: '⚽' }, { name: 'বই-শিক্ষা', emoji: '📚' },
+  { name: 'অফার', emoji: '🔥' }, { name: 'অন্যান্য', emoji: '🛍️' },
+];
+
+function getAvailableCategories() {
+  if (STATE.allCategories && STATE.allCategories.length) {
+    return STATE.allCategories.filter(c => c.isActive !== false);
+  }
+  return DEFAULT_CATEGORIES.map(c => ({ name: c.name, emoji: c.emoji, isActive: true }));
+}
 
 // ═══════════════════════════════════════════════
-//  GAS BRIDGE — fetch API ব্যবহার করে
+//  MULTI-CATEGORY UI HELPERS
+// ═══════════════════════════════════════════════
+function renderCategoryChips() {
+  const wrap = document.getElementById('pfCategoryChips');
+  if (!wrap) return;
+  wrap.innerHTML = formCategories.map(cat =>
+    `<span class="tag-pill" style="background:var(--brand)">${cat}<button type="button" onclick="removeCategoryChip('${cat.replace(/'/g,"\\'")}')">×</button></span>`
+  ).join('') + `<span style="font-size:.78rem;color:var(--ink3);padding:4px 6px">${formCategories.length ? '' : 'ক্লিক করে ক্যাটাগরি বেছে নিন'}</span>`;
+}
+
+function renderCategoryDropdown() {
+  const dd = document.getElementById('pfCategoryDropdown');
+  if (!dd) return;
+  const cats = getAvailableCategories();
+  dd.innerHTML = cats.map(c => {
+    const selected = formCategories.includes(c.name);
+    return `<div onclick="toggleCategoryChip('${c.name.replace(/'/g,"\\'")}',this)"
+      style="padding:9px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.875rem;
+             background:${selected ? 'rgba(200,16,46,.07)' : 'transparent'};
+             border-left:3px solid ${selected ? 'var(--brand)' : 'transparent'};transition:.15s"
+      onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='${selected ? 'rgba(200,16,46,.07)' : 'transparent'}'">
+      <span>${c.emoji || '🛍️'}</span>
+      <span style="flex:1">${c.name}</span>
+      ${selected ? `<i class="fas fa-check" style="color:var(--brand);font-size:.75rem"></i>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleCategoryDropdown() {
+  const dd = document.getElementById('pfCategoryDropdown');
+  if (!dd) return;
+  if (dd.style.display === 'none' || !dd.style.display) {
+    renderCategoryDropdown();
+    dd.style.display = 'block';
+    // বাইরে ক্লিক হলে বন্ধ হবে
+    setTimeout(() => {
+      document.addEventListener('click', closeCategoryDropdownOutside, { once: true });
+    }, 10);
+  } else {
+    dd.style.display = 'none';
+  }
+}
+
+function closeCategoryDropdownOutside(e) {
+  const dd = document.getElementById('pfCategoryDropdown');
+  const btn = dd && dd.previousElementSibling;
+  if (dd && !dd.contains(e.target) && e.target !== btn) {
+    dd.style.display = 'none';
+  }
+}
+
+function toggleCategoryChip(catName, rowEl) {
+  const idx = formCategories.indexOf(catName);
+  if (idx >= 0) {
+    formCategories.splice(idx, 1);
+  } else {
+    formCategories.push(catName);
+  }
+  renderCategoryChips();
+  renderCategoryDropdown(); // dropdown আপডেট (checkmark)
+}
+
+function removeCategoryChip(catName) {
+  formCategories = formCategories.filter(c => c !== catName);
+  renderCategoryChips();
+}
+
+// ═══════════════════════════════════════════════
+//  GAS BRIDGE
 // ═══════════════════════════════════════════════
 const GAS = {
   async run(fn, args, successCb, failCb) {
     try {
-      // GET request হিসেবে পাঠাবো
-      const params = new URLSearchParams({
-        fn: fn,
-        args: JSON.stringify(args || [])
-      });
-      const url = GAS_URL + '?' + params.toString();
-      const response = await fetch(url, {
-        method: 'GET',
-        redirect: 'follow',
-      });
+      const params = new URLSearchParams({ fn, args: JSON.stringify(args || []) });
+      const response = await fetch(GAS_URL + '?' + params.toString(), { method: 'GET', redirect: 'follow' });
       if (!response.ok) throw new Error('HTTP error: ' + response.status);
       const data = await response.json();
       if (successCb) successCb(data);
@@ -1390,6 +1518,12 @@ window.onload = function () {
     renderHomeSections();
     renderShop(STATE.products);
     updateCartUI();
+    GAS.run('getCategories', [], res => {
+      if (res && res.success && res.data.length) {
+        STATE.allCategories = res.data;
+        rebuildCategoryUI();
+      }
+    });
     hideInitialLoader();
   }, () => {
     hideInitialLoader();
@@ -1474,6 +1608,7 @@ function selectCategory(cat, el) {
 
 // ═══════════════════════════════════════════════
 //  SEARCH & FILTERS
+//  ★ categories array দিয়ে ফিল্টার করে (multi-cat)
 // ═══════════════════════════════════════════════
 function handleGlobalSearch() {
   const q = document.getElementById('globalSearch').value;
@@ -1520,13 +1655,22 @@ function toggleSidebarFilter(el, type, val) {
   applyFilters();
 }
 function toggleFilterChip(el, type) { el.classList.toggle('active'); STATE.filters[type] = el.classList.contains('active'); applyFilters(); }
+
 function applyFilters() {
   const q = (document.getElementById('globalSearch').value || '').toLowerCase();
   const sort = document.getElementById('sortSel') ? document.getElementById('sortSel').value : '';
   const pMin = Number(document.getElementById('priceMin') ? document.getElementById('priceMin').value : 0) || 0;
   const pMax = Number(document.getElementById('priceMax') ? document.getElementById('priceMax').value : 0) || Infinity;
   let items = [...STATE.products];
-  if (STATE.activeCategory !== 'all') items = items.filter(p => p.category === STATE.activeCategory);
+
+  // ★ multi-category ফিল্টার: categories array তে active category আছে কিনা চেক করে
+  if (STATE.activeCategory !== 'all') {
+    items = items.filter(p => {
+      const cats = Array.isArray(p.categories) && p.categories.length ? p.categories : (p.category ? [p.category] : []);
+      return cats.includes(STATE.activeCategory);
+    });
+  }
+
   if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q)));
   if (pMin) items = items.filter(p => effectivePrice(p) >= pMin);
   if (pMax < Infinity) items = items.filter(p => effectivePrice(p) <= pMax);
@@ -1541,6 +1685,7 @@ function applyFilters() {
   if (sort === 'newest') items = items.slice().reverse();
   renderShop(items);
 }
+
 function clearFilters() {
   if (document.getElementById('priceMin')) document.getElementById('priceMin').value = '';
   if (document.getElementById('priceMax')) document.getElementById('priceMax').value = '';
@@ -1553,6 +1698,7 @@ function discountPct(p) { if (!p.discountPrice || p.discountPrice >= p.price) re
 
 // ═══════════════════════════════════════════════
 //  HOME SECTIONS
+//  ★ categories array-তেও homeSection চেক করে
 // ═══════════════════════════════════════════════
 function renderHomeSections() {
   const fp = STATE.products.filter(p => p.homeSection === 'featured');
@@ -1562,8 +1708,7 @@ function renderHomeSections() {
   const pp = STATE.products.filter(p => p.homeSection === 'popular');
   const pList = pp.length ? pp : STATE.products.filter(p => p.discountPrice > 0).slice(0, 8);
   const setSection = (sid, gid, items) => {
-    const s = document.getElementById(sid);
-    const g = document.getElementById(gid);
+    const s = document.getElementById(sid), g = document.getElementById(gid);
     if (!s || !g) return;
     if (items.length) { s.classList.remove('hidden'); g.innerHTML = items.map(productCardHTML).join(''); }
     else s.classList.add('hidden');
@@ -1575,18 +1720,25 @@ function renderHomeSections() {
 
 // ═══════════════════════════════════════════════
 //  PRODUCT CARDS
+//  ★ categories array থেকে প্রথমটি দেখায়
 // ═══════════════════════════════════════════════
 function productCardHTML(p) {
   const ep = effectivePrice(p), disc = discountPct(p);
+  // display category: প্রথম ক্যাটাগরি দেখাবে
+  const displayCat = (Array.isArray(p.categories) && p.categories.length) ? p.categories[0] : (p.category || '');
   const imgBlock = (p.images || []).length
-    ? `<img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="pcard-img-placeholder" style="display:none">${catEmoji(p.category)}</div>`
-    : `<div class="pcard-img-placeholder">${catEmoji(p.category)}</div>`;
+    ? `<img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="pcard-img-placeholder" style="display:none">${catEmoji(displayCat)}</div>`
+    : `<div class="pcard-img-placeholder">${catEmoji(displayCat)}</div>`;
   const sizes = (p.sizes || []).slice(0, 5).map(s => `<span class="pcard-size">${s}</span>`).join('');
   const badge = disc > 0 ? `<span class="pcard-badge sale">-${disc}%</span>` : p.featured ? `<span class="pcard-badge">ফিচার্ড</span>` : '';
+  // একাধিক ক্যাটাগরি থাকলে ছোট ট্যাগ দেখাবে
+  const extraCats = (Array.isArray(p.categories) && p.categories.length > 1)
+    ? `<span style="font-size:.65rem;background:rgba(200,16,46,.1);color:var(--brand);border-radius:10px;padding:1px 6px;margin-left:4px">+${p.categories.length - 1}</span>`
+    : '';
   return `<div class="pcard" onclick="openProductModal('${p.id}')">
     <div class="pcard-img-wrap">${imgBlock}${badge}</div>
     <div class="pcard-body">
-      <div class="pcard-cat">${p.category || ''}</div>
+      <div class="pcard-cat">${displayCat}${extraCats}</div>
       <div class="pcard-name">${p.name}</div>
       <div class="pcard-price-row">
         <div class="pcard-price">৳${ep.toLocaleString()}</div>
@@ -1601,7 +1753,11 @@ function productCardHTML(p) {
   </div>`;
 }
 function catEmoji(cat) {
-  const m = { 'পুরুষ-পোশাক': '👔', 'মহিলা-পোশাক': '👗', 'শিশু-পোশাক': '🧒', 'জুতা': '👟', 'ব্যাগ': '👜', 'ইলেকট্রনিক্স': '📱', 'গৃহস্থালি': '🏠', 'সৌন্দর্য': '💄', 'খেলাধুলা': '⚽', 'বই-শিক্ষা': '📚', 'অফার': '🔥' };
+  const m = { 'পুরুষ-পোশাক':'👔','মহিলা-পোশাক':'👗','শিশু-পোশাক':'🧒','জুতা':'👟','ব্যাগ':'👜','ইলেকট্রনিক্স':'📱','গৃহস্থালি':'🏠','সৌন্দর্য':'💄','খেলাধুলা':'⚽','বই-শিক্ষা':'📚','অফার':'🔥' };
+  if (cat && STATE.allCategories) {
+    const found = STATE.allCategories.find(c => c.name === cat);
+    if (found && found.emoji) return found.emoji;
+  }
   return m[cat] || '🛍️';
 }
 function renderShop(items) {
@@ -1623,6 +1779,7 @@ function setView(mode) {
 
 // ═══════════════════════════════════════════════
 //  PRODUCT MODAL
+//  ★ সব categories দেখায়
 // ═══════════════════════════════════════════════
 function openProductModal(id) {
   const p = STATE.products.find(x => x.id === id);
@@ -1646,7 +1803,8 @@ function renderGallery(p) {
   const prev = document.getElementById('galleryPrev');
   const next = document.getElementById('galleryNext');
   if (!imgs.length) {
-    slider.innerHTML = `<div class="gallery-slide"><div class="placeholder" style="min-height:420px;display:flex;align-items:center;justify-content:center;font-size:6rem;width:100%">${catEmoji(p.category)}</div></div>`;
+    const dc = (Array.isArray(p.categories) && p.categories.length) ? p.categories[0] : p.category;
+    slider.innerHTML = `<div class="gallery-slide"><div class="placeholder" style="min-height:420px;display:flex;align-items:center;justify-content:center;font-size:6rem;width:100%">${catEmoji(dc)}</div></div>`;
     dots.innerHTML = ''; counter.textContent = ''; prev.style.display = 'none'; next.style.display = 'none'; return;
   }
   slider.innerHTML = imgs.map(src =>
@@ -1669,7 +1827,6 @@ function galleryGoTo(idx) {
   document.getElementById('galleryCounter').textContent = `${STATE.galleryIdx + 1} / ${imgs.length}`;
 }
 function galleryNav(dir) { galleryGoTo(STATE.galleryIdx + dir); }
-
 function switchModalTab(tab, el) {
   document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.modal-tab-body').forEach(b => b.classList.remove('active'));
@@ -1678,11 +1835,11 @@ function switchModalTab(tab, el) {
   if (body) body.classList.add('active');
   if (el) el.classList.add('active');
 }
-
 function renderModalDetails(p) {
   const ep = effectivePrice(p), disc = discountPct(p);
-  const avgRating = '—';
-const reviews = { length: 0 };
+  // ★ সব categories দেখাও
+  const cats = (Array.isArray(p.categories) && p.categories.length) ? p.categories : (p.category ? [p.category] : []);
+  const catDisplay = cats.map(c => `<span style="background:rgba(200,16,46,.1);color:var(--brand);border-radius:10px;padding:2px 9px;font-size:.72rem;font-weight:600">${catEmoji(c)} ${c}</span>`).join(' ');
   const starsHTML = r => '★'.repeat(Math.round(Number(r) || 0)) + '☆'.repeat(5 - Math.round(Number(r) || 0));
   const hasColors = (p.colors || []).length > 0, hasSizes = (p.sizes || []).length > 0;
   let colorsHTML = '', sizesHTML = '';
@@ -1695,16 +1852,14 @@ const reviews = { length: 0 };
   const detailsEl = document.getElementById('modalTabDetails');
   if (!detailsEl) return;
   detailsEl.innerHTML = `
-    <div class="modal-category">${p.category || ''}${p.subCategory ? ' / ' + p.subCategory : ''}</div>
+    <div class="modal-category" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">${catDisplay}${p.subCategory ? `<span style="background:var(--bg);color:var(--ink3);border-radius:10px;padding:2px 9px;font-size:.72rem">${p.subCategory}</span>` : ''}</div>
     <div class="modal-name">${p.name}</div>
     <div class="modal-price-row">
       <div class="modal-price">৳${ep.toLocaleString()}</div>
       ${disc > 0 ? `<div class="modal-price-orig">৳${Number(p.price).toLocaleString()}</div><div class="modal-discount">${disc}% ছাড়</div>` : ''}
     </div>
     <div class="modal-rating-row">
-      <span class="stars-display">${starsHTML(Number(avgRating))}</span>
-      <span style="font-size:.85rem;font-weight:700">${avgRating}</span>
-      <span style="font-size:.8rem;color:var(--ink3)">(${reviews.length} রিভিউ)</span>
+      <span class="stars-display">${starsHTML(0)}</span>
       <span style="font-size:.8rem;color:var(--ink3)">• স্টক: ${p.stock || 0}</span>
     </div>
     <hr class="modal-divider"/>
@@ -1724,15 +1879,11 @@ const reviews = { length: 0 };
 function renderModalReviews(productId) {
   const reviewsEl = document.getElementById('modalTabReviews');
   if (reviewsEl) reviewsEl.innerHTML = '<div style="text-align:center;padding:24px;color:var(--ink3)"><i class="fas fa-spinner fa-spin"></i> লোড হচ্ছে...</div>';
-
   GAS.run('getReviews', [productId], res => {
     const reviews = (res && res.success && Array.isArray(res.data)) ? res.data : [];
     _renderReviewsUI(productId, reviews);
-  }, () => {
-    _renderReviewsUI(productId, []);
-  });
+  }, () => { _renderReviewsUI(productId, []); });
 }
-
 function _renderReviewsUI(productId, reviews) {
   const badgeEl = document.getElementById('reviewCountBadge');
   if (badgeEl) badgeEl.textContent = reviews.length;
@@ -1768,36 +1919,21 @@ function _renderReviewsUI(productId, reviews) {
   const reviewsEl = document.getElementById('modalTabReviews');
   if (reviewsEl) reviewsEl.innerHTML = `<div class="reviews-section">${summaryHTML}<div class="review-list">${reviewsHTML}</div>${writeHTML}</div>`;
 }
-
 function submitReview(productId) {
-  const nameEl   = document.getElementById('reviewName');
-  const textEl   = document.getElementById('reviewText');
+  const nameEl = document.getElementById('reviewName');
+  const textEl = document.getElementById('reviewText');
   const ratingEl = document.querySelector(`input[name="rstar_${productId}"]:checked`);
-  const name     = nameEl ? nameEl.value.trim() : '';
-  const text     = textEl ? textEl.value.trim() : '';
-
-  if (!name)     { showToast('নাম দিন', 'error'); return; }
+  const name = nameEl ? nameEl.value.trim() : '';
+  const text = textEl ? textEl.value.trim() : '';
+  if (!name) { showToast('নাম দিন', 'error'); return; }
   if (!ratingEl) { showToast('রেটিং দিন', 'error'); return; }
-
-  const reviewData = {
-    productId,
-    name,
-    rating : Number(ratingEl.value),
-    text   : text || '👍',
-  };
-
   showLoadingOverlay(true);
-  GAS.run('addReview', [reviewData], res => {
+  GAS.run('addReview', [{ productId, name, rating: Number(ratingEl.value), text: text || '👍' }], res => {
     showLoadingOverlay(false);
-    if (res && res.success) {
-      showToast('রিভিউ যোগ হয়েছে!', 'success');
-      renderModalReviews(productId);
-    } else {
-      showToast('রিভিউ সেভ ব্যর্থ', 'error');
-    }
+    if (res && res.success) { showToast('রিভিউ যোগ হয়েছে!', 'success'); renderModalReviews(productId); }
+    else showToast('রিভিউ সেভ ব্যর্থ', 'error');
   }, () => { showLoadingOverlay(false); showToast('সার্ভার ত্রুটি', 'error'); });
 }
-
 function selectModalColor(idx, name, el) {
   STATE.selectedColor = STATE.modalProduct.colors[idx];
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
@@ -2128,7 +2264,6 @@ function loadAdminDash() {
     }
   }, err => { showLoadingOverlay(false); showToast('ড্যাশবোর্ড লোড ব্যর্থ: ' + (err ? err.message : ''), 'error'); });
 }
-
 function renderRecentOrdersTable(recent) {
   const el = document.getElementById('recentOrdersTbody');
   if (!el) return;
@@ -2144,7 +2279,6 @@ function renderRecentOrdersTable(recent) {
       <td>${statusBadge(o.status)}</td>
     </tr>`).join('');
 }
-
 function renderRevenueChart(daily) {
   const chart = document.getElementById('revenueChart');
   if (!chart) return;
@@ -2155,19 +2289,16 @@ function renderRevenueChart(daily) {
     const h = Math.max((val / maxVal) * 100, val > 0 ? 8 : 2);
     const d = date.split('/');
     return `<div class="chart-bar-wrap">
-      <div class="chart-bar" style="height:${h}%">
-        <div class="chart-bar-tooltip">৳${Number(val).toLocaleString()}</div>
-      </div>
+      <div class="chart-bar" style="height:${h}%"><div class="chart-bar-tooltip">৳${Number(val).toLocaleString()}</div></div>
       <div class="chart-bar-lbl">${d[0]}/${d[1] || ''}</div>
     </div>`;
   }).join('');
 }
-
 function renderStatusDonut(counts) {
   const wrap = document.getElementById('statusDonut');
   if (!wrap) return;
-  const colors = { Pending: '#f57f17', Processing: '#1565c0', Shipped: '#7b1fa2', Delivered: '#2e7d32', Cancelled: '#c62828' };
-  const labels = { Pending: 'পেন্ডিং', Processing: 'প্রসেসিং', Shipped: 'শিপড', Delivered: 'ডেলিভার্ড', Cancelled: 'বাতিল' };
+  const colors = { Pending:'#f57f17', Processing:'#1565c0', Shipped:'#7b1fa2', Delivered:'#2e7d32', Cancelled:'#c62828' };
+  const labels = { Pending:'পেন্ডিং', Processing:'প্রসেসিং', Shipped:'শিপড', Delivered:'ডেলিভার্ড', Cancelled:'বাতিল' };
   const entries = Object.entries(counts).filter(e => e[1] > 0);
   const total = entries.reduce((s, e) => s + e[1], 0);
   if (!total) { wrap.innerHTML = '<div style="color:var(--ink3);font-size:.85rem;margin:auto;text-align:center;padding:20px">কোনো অর্ডার নেই</div>'; return; }
@@ -2190,6 +2321,7 @@ function renderStatusDonut(counts) {
 
 // ═══════════════════════════════════════════════
 //  ADMIN PRODUCTS
+//  ★ categories (array) দেখায় টেবিলে
 // ═══════════════════════════════════════════════
 function loadAdminProducts() {
   showLoadingOverlay(true);
@@ -2204,11 +2336,16 @@ function filterProdTable() {
   const cat = document.getElementById('prodCatFilter') ? document.getElementById('prodCatFilter').value : '';
   let items = [...STATE.allProducts];
   if (q) items = items.filter(p => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
-  if (cat) items = items.filter(p => p.category === cat);
+  if (cat) {
+    items = items.filter(p => {
+      const cats = Array.isArray(p.categories) && p.categories.length ? p.categories : (p.category ? [p.category] : []);
+      return cats.includes(cat);
+    });
+  }
   renderProdTable(items);
 }
 function hsBadge(hs) {
-  const m = { featured: `<span class="hs-badge hs-featured">⭐ সেরা</span>`, new: `<span class="hs-badge hs-new">🆕 নতুন</span>`, popular: `<span class="hs-badge hs-popular">🔥 জনপ্রিয়</span>` };
+  const m = { featured:`<span class="hs-badge hs-featured">⭐ সেরা</span>`, new:`<span class="hs-badge hs-new">🆕 নতুন</span>`, popular:`<span class="hs-badge hs-popular">🔥 জনপ্রিয়</span>` };
   return m[hs] || `<span class="hs-badge hs-none">—</span>`;
 }
 function renderProdTable(prods) {
@@ -2220,11 +2357,14 @@ function renderProdTable(prods) {
     const ep = effectivePrice(p);
     const imgEl = (p.images || []).length ? `<img src="${p.images[0]}" style="width:42px;height:48px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'"/>` : catEmoji(p.category);
     const colors = (p.colors || []).map(c => `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${c.hex || c};border:1px solid rgba(0,0,0,.1)" title="${c.name || c}"></span>`).join('');
+    // ★ categories array দেখাবে
+    const cats = (Array.isArray(p.categories) && p.categories.length) ? p.categories : (p.category ? [p.category] : []);
+    const catDisplay = cats.map(c => `<span style="font-size:.68rem;background:rgba(200,16,46,.08);color:var(--brand);border-radius:8px;padding:1px 6px;margin:1px;display:inline-block">${c}</span>`).join('');
     return `<tr>
       <td><input type="checkbox" ${STATE.selectedProds.has(p.id) ? 'checked' : ''} onchange="toggleProdSelect('${p.id}',this.checked)"/></td>
       <td>${imgEl}</td>
       <td><strong>${p.name}</strong><br/><span style="font-size:.72rem;color:var(--ink3)">${p.id}</span></td>
-      <td style="font-size:.78rem">${p.category || '—'}</td>
+      <td style="font-size:.78rem">${catDisplay || '—'}</td>
       <td><strong style="color:var(--brand)">৳${ep.toLocaleString()}</strong></td>
       <td style="display:flex;gap:3px;flex-wrap:wrap">${colors || '—'}</td>
       <td>${(p.sizes || []).join(', ') || '—'}</td>
@@ -2314,7 +2454,7 @@ function renderOrdersTable(orders) {
     <td>${o.trackingNumber ? `<span class="tracking-chip" style="font-size:.68rem;padding:2px 8px">${o.trackingNumber}</span>` : '—'}</td>
     <td>
       <select style="border:1.5px solid var(--border);border-radius:6px;padding:4px 8px;font-size:.78rem;background:var(--bg)" onchange="quickUpdateOrderStatus('${o.orderId}',this.value)">
-        ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s => `<option${o.status === s ? ' selected' : ''}>${s}</option>`).join('')}
+        ${['Pending','Processing','Shipped','Delivered','Cancelled'].map(s => `<option${o.status === s ? ' selected' : ''}>${s}</option>`).join('')}
       </select>
     </td>
     <td style="font-size:.75rem;color:var(--ink3)">${o.orderDate || ''}</td>
@@ -2397,11 +2537,11 @@ function viewOrderDetail(orderId, defaultTab) {
   document.getElementById('orderDetailModal').classList.remove('hidden');
 }
 function switchOdTab(tab) {
-  ['info', 'courier', 'timeline', 'actions'].forEach(t => {
+  ['info','courier','timeline','actions'].forEach(t => {
     const el = document.getElementById('odTab-' + t);
     if (el) el.classList.toggle('active', t === tab);
   });
-  document.querySelectorAll('.od-tab').forEach((t, i) => t.classList.toggle('active', ['info', 'courier', 'timeline', 'actions'][i] === tab));
+  document.querySelectorAll('.od-tab').forEach((t, i) => t.classList.toggle('active', ['info','courier','timeline','actions'][i] === tab));
 }
 function renderOrderDetailTabs(o) {
   const items = Array.isArray(o.items) ? o.items : [];
@@ -2463,7 +2603,7 @@ function renderOrderDetailTabs(o) {
     <div class="settings-card">
       <div class="sc-header"><i class="fas fa-exchange-alt"></i> স্ট্যাটাস পরিবর্তন</div>
       <div class="sc-body" style="display:flex;flex-wrap:wrap;gap:8px">
-        ${['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map(s =>
+        ${['Pending','Processing','Shipped','Delivered','Cancelled'].map(s =>
           `<button class="btn-action ${o.status === s ? 'btn-edit' : 'btn-neutral'}" style="padding:9px 16px" onclick="updateOrderStatusAndRefresh('${o.orderId}','${s}')">${statusBadge(s)}</button>`
         ).join('')}
       </div>
@@ -2477,7 +2617,6 @@ function renderOrderDetailTabs(o) {
       <div class="sc-body"><button class="btn-action btn-del" style="padding:10px 20px" onclick="delOrder('${o.orderId}');closeOrderDetail()"><i class="fas fa-trash"></i> মুছে দিন</button></div>
     </div>`;
 }
-
 function saveCourierAssign(orderId) {
   const data = {
     courierName: document.getElementById('od_courierName').value,
@@ -2566,24 +2705,25 @@ function loadCmsSettings() {
       const el = document.getElementById(id);
       if (el) { if (el.type === 'checkbox') el.checked = val === 'true' || val === true; else el.value = val || ''; }
     };
-    ['shopName', 'shopTagline', 'shopPhone', 'shopEmail', 'shopAddress', 'shopFacebook', 'shopWhatsapp',
-     'announcementText', 'heroTag', 'heroTitle', 'heroSubtitle', 'heroCTA1', 'heroCTA2',
-     'footerAbout', 'footerCopyright', 'deliveryChargeInDhaka', 'deliveryChargeOutDhaka',
-     'whatsappNumber', 'shopLogo'].forEach(k => setVal('cms_' + k, s[k]));
+    ['shopName','shopTagline','shopPhone','shopEmail','shopAddress','shopFacebook','shopWhatsapp',
+     'announcementText','heroTag','heroTitle','heroSubtitle','heroCTA1','heroCTA2',
+     'footerAbout','footerCopyright','deliveryChargeInDhaka','deliveryChargeOutDhaka',
+     'whatsappNumber','shopLogo'].forEach(k => setVal('cms_' + k, s[k]));
     setVal('cms_announcementActive', s.announcementActive);
     setVal('cms_whatsappOrderActive', s.whatsappOrderActive);
     setVal('cms_primaryColor', s.primaryColor || '#c8102e');
     setVal('cms_primaryColorHex', s.primaryColor || '#c8102e');
     loadCourierList();
+    loadCategoryList();
   });
 }
 function saveCmsSection(section) {
   const getVal = id => { const el = document.getElementById(id); if (!el) return ''; return el.type === 'checkbox' ? String(el.checked) : el.value; };
   let updates = {};
-  if (section === 'general') { updates = { shopName: getVal('cms_shopName'), shopTagline: getVal('cms_shopTagline'), shopPhone: getVal('cms_shopPhone'), shopEmail: getVal('cms_shopEmail'), shopAddress: getVal('cms_shopAddress'), shopFacebook: getVal('cms_shopFacebook'), shopWhatsapp: getVal('cms_shopWhatsapp'), announcementActive: getVal('cms_announcementActive'), announcementText: getVal('cms_announcementText') }; }
-  else if (section === 'hero') { updates = { heroTag: getVal('cms_heroTag'), heroTitle: getVal('cms_heroTitle'), heroSubtitle: getVal('cms_heroSubtitle'), heroCTA1: getVal('cms_heroCTA1'), heroCTA2: getVal('cms_heroCTA2') }; }
-  else if (section === 'footer') { updates = { footerAbout: getVal('cms_footerAbout'), footerCopyright: getVal('cms_footerCopyright') }; }
-  else if (section === 'delivery') { updates = { deliveryChargeInDhaka: getVal('cms_deliveryChargeInDhaka'), deliveryChargeOutDhaka: getVal('cms_deliveryChargeOutDhaka'), whatsappOrderActive: getVal('cms_whatsappOrderActive'), whatsappNumber: getVal('cms_whatsappNumber') }; }
+  if (section === 'general') { updates = { shopName:getVal('cms_shopName'), shopTagline:getVal('cms_shopTagline'), shopPhone:getVal('cms_shopPhone'), shopEmail:getVal('cms_shopEmail'), shopAddress:getVal('cms_shopAddress'), shopFacebook:getVal('cms_shopFacebook'), shopWhatsapp:getVal('cms_shopWhatsapp'), announcementActive:getVal('cms_announcementActive'), announcementText:getVal('cms_announcementText') }; }
+  else if (section === 'hero') { updates = { heroTag:getVal('cms_heroTag'), heroTitle:getVal('cms_heroTitle'), heroSubtitle:getVal('cms_heroSubtitle'), heroCTA1:getVal('cms_heroCTA1'), heroCTA2:getVal('cms_heroCTA2') }; }
+  else if (section === 'footer') { updates = { footerAbout:getVal('cms_footerAbout'), footerCopyright:getVal('cms_footerCopyright') }; }
+  else if (section === 'delivery') { updates = { deliveryChargeInDhaka:getVal('cms_deliveryChargeInDhaka'), deliveryChargeOutDhaka:getVal('cms_deliveryChargeOutDhaka'), whatsappOrderActive:getVal('cms_whatsappOrderActive'), whatsappNumber:getVal('cms_whatsappNumber') }; }
   else if (section === 'appearance') { const color = document.getElementById('cms_primaryColorHex').value || document.getElementById('cms_primaryColor').value; updates = { primaryColor: color, shopLogo: getVal('cms_shopLogo') }; }
   showLoadingOverlay(true);
   GAS.run('updateSiteSettings', [updates], res => {
@@ -2596,9 +2736,10 @@ function switchSettingsTab(tab) {
   document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
   const allTabs = document.querySelectorAll('.settings-tabs .stab');
-  const tabIndex = ['general', 'hero', 'footer', 'delivery', 'couriers', 'appearance'].indexOf(tab);
+  const tabIndex = ['general','hero','footer','delivery','couriers','categories','appearance'].indexOf(tab);
   if (tabIndex >= 0 && allTabs[tabIndex]) allTabs[tabIndex].classList.add('active');
   const sec = document.getElementById('stab-' + tab); if (sec) sec.classList.add('active');
+  if (tab === 'categories') loadCategoryList();
 }
 function previewPrimaryColor(val) { document.documentElement.style.setProperty('--brand', val); document.getElementById('cms_primaryColorHex').value = val; }
 
@@ -2645,9 +2786,10 @@ function deleteCourier(id) {
 
 // ═══════════════════════════════════════════════
 //  PRODUCT FORM HELPERS
+//  ★ formCategories ব্যবহার করে (multi-cat)
 // ═══════════════════════════════════════════════
 function openProductForm(product) {
-  formColors = []; formSizes = []; formTags = [];
+  formColors = []; formSizes = []; formTags = []; formCategories = [];
   const isEdit = !!product;
   document.getElementById('pfTitle').textContent = isEdit ? 'পণ্য সম্পাদনা করুন' : 'নতুন পণ্য যোগ করুন';
   document.getElementById('pfId').value = isEdit ? product.id : '';
@@ -2656,11 +2798,24 @@ function openProductForm(product) {
   document.getElementById('pfPrice').value = isEdit ? product.price : '';
   document.getElementById('pfDiscount').value = isEdit ? (product.discountPrice || '') : '';
   document.getElementById('pfStock').value = isEdit ? (product.stock || 0) : '';
-  document.getElementById('pfCategory').value = isEdit ? (product.category || '') : '';
   document.getElementById('pfSubCat').value = isEdit ? (product.subCategory || '') : '';
   document.getElementById('pfImages').value = isEdit ? (product.images || []).join('\n') : '';
   document.getElementById('pfFeatured').checked = isEdit ? (product.featured || false) : false;
   setSelectedHomeSection(isEdit ? (product.homeSection || '') : '');
+
+  // ★ পুরনো categories লোড করো
+  if (isEdit) {
+    if (Array.isArray(product.categories) && product.categories.length) {
+      formCategories = [...product.categories];
+    } else if (product.category) {
+      formCategories = [product.category];
+    }
+  }
+  renderCategoryChips();
+  // dropdown বন্ধ করো
+  const dd = document.getElementById('pfCategoryDropdown');
+  if (dd) dd.style.display = 'none';
+
   if (isEdit) (product.colors || []).forEach(c => formColors.push(c));
   renderColorInputs();
   if (isEdit) formSizes = [...(product.sizes || [])];
@@ -2670,7 +2825,11 @@ function openProductForm(product) {
   renderTagPills();
   document.getElementById('productFormModal').classList.remove('hidden');
 }
-function closeProductForm() { document.getElementById('productFormModal').classList.add('hidden'); }
+function closeProductForm() {
+  document.getElementById('productFormModal').classList.add('hidden');
+  const dd = document.getElementById('pfCategoryDropdown');
+  if (dd) dd.style.display = 'none';
+}
 function editProduct(id) { const p = STATE.allProducts.find(x => x.id === id); if (p) openProductForm(p); }
 function delProduct(id, name) {
   if (!confirm(`"${name}" মুছে দিতে চান?`)) return;
@@ -2683,6 +2842,10 @@ function delProduct(id, name) {
 }
 function saveProductForm() {
   const id = document.getElementById('pfId').value;
+
+  // ★ categories array সেভ করো
+  if (formCategories.length === 0) { showToast('কমপক্ষে একটি ক্যাটাগরি বেছে নিন', 'error'); return; }
+
   const p = {
     id,
     name: document.getElementById('pfName').value.trim(),
@@ -2690,7 +2853,8 @@ function saveProductForm() {
     price: Number(document.getElementById('pfPrice').value) || 0,
     discountPrice: Number(document.getElementById('pfDiscount').value) || 0,
     stock: Number(document.getElementById('pfStock').value) || 0,
-    category: document.getElementById('pfCategory').value,
+    categories: formCategories,                // ★ array পাঠাচ্ছি
+    category: formCategories[0] || '',          // backward compat
     subCategory: document.getElementById('pfSubCat').value.trim(),
     images: document.getElementById('pfImages').value.split('\n').map(s => s.trim()).filter(Boolean),
     colors: formColors,
@@ -2704,8 +2868,12 @@ function saveProductForm() {
   const fn = id ? 'updateProduct' : 'addProduct';
   GAS.run(fn, [p], res => {
     showLoadingOverlay(false);
-    if (res && res.success) { showToast(id ? 'আপডেট হয়েছে' : 'পণ্য যোগ হয়েছে', 'success'); closeProductForm(); loadAdminProducts(); renderHomeSections(); }
-    else showToast(res && res.error ? res.error : 'ব্যর্থ', 'error');
+    if (res && res.success) {
+      showToast(id ? 'আপডেট হয়েছে' : 'পণ্য যোগ হয়েছে', 'success');
+      closeProductForm();
+      loadAdminProducts();
+      renderHomeSections();
+    } else showToast(res && res.error ? res.error : 'ব্যর্থ', 'error');
   });
 }
 
@@ -2758,7 +2926,6 @@ function renderSizeTags() {
   if (!wrap) return;
   wrap.innerHTML = formSizes.map(s => `<span class="tag-pill">${s}<button onclick="removeSize('${s}')" type="button">×</button></span>`).join('') + `<div class="tag-input-inner" id="sizeTagInput" contenteditable="true" onkeydown="handleSizeInput(event)" placeholder="কাস্টম সাইজ..."></div>`;
 }
-
 function handleTagInput(e) {
   if (e.key === 'Enter' || e.key === ',') {
     e.preventDefault();
@@ -2775,26 +2942,134 @@ function renderTagPills() {
 }
 
 // ═══════════════════════════════════════════════
+//  CATEGORY MANAGEMENT
+// ═══════════════════════════════════════════════
+function loadCategoryList() {
+  showLoadingOverlay(true);
+  GAS.run('getCategories', [], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) { STATE.allCategories = res.data || []; renderCategoryList(); }
+  }, () => { showLoadingOverlay(false); showToast('ক্যাটাগরি লোড ব্যর্থ', 'error'); });
+}
+function renderCategoryList() {
+  const wrap = document.getElementById('categoryListWrap');
+  if (!wrap) return;
+  if (!STATE.allCategories.length) {
+    wrap.innerHTML = `<div style="text-align:center;padding:24px;color:var(--ink3)"><i class="fas fa-tags" style="font-size:2rem;opacity:.3;display:block;margin-bottom:8px"></i><p>কোনো ক্যাটাগরি নেই। ডিফল্ট ক্যাটাগরি ব্যবহার হচ্ছে।</p></div>`;
+    return;
+  }
+  wrap.innerHTML = STATE.allCategories.map(c => `
+    <div class="cat-manage-card ${c.isActive ? '' : 'cat-inactive'}">
+      <div class="cat-manage-emoji">${c.emoji || '🛍️'}</div>
+      <div class="cat-manage-info">
+        <div class="cat-manage-name">${c.name}</div>
+        <div class="cat-manage-meta">অর্ডার: ${c.sortOrder} · ${c.isActive ? '✅ সক্রিয়' : '❌ নিষ্ক্রিয়'}</div>
+      </div>
+      <div class="cat-manage-actions">
+        <label class="toggle-switch" title="${c.isActive ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন'}">
+          <input type="checkbox" ${c.isActive ? 'checked' : ''} onchange="toggleCategoryActive('${c.id}',this.checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+        <button class="btn-action btn-edit" onclick="openCategoryForm('${c.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn-action btn-del" onclick="deleteCategoryItem('${c.id}','${c.name.replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+function openCategoryForm(id) {
+  const isEdit = !!id;
+  const cat = id ? STATE.allCategories.find(c => c.id === id) : null;
+  document.getElementById('cfmTitle').textContent = isEdit ? 'ক্যাটাগরি সম্পাদনা' : 'নতুন ক্যাটাগরি';
+  document.getElementById('cfmId').value = isEdit ? cat.id : '';
+  document.getElementById('cfmName').value = isEdit ? cat.name : '';
+  document.getElementById('cfmEmoji').value = isEdit ? cat.emoji : '🛍️';
+  document.getElementById('cfmOrder').value = isEdit ? cat.sortOrder : (STATE.allCategories.length + 1);
+  document.getElementById('cfmActive').checked = isEdit ? cat.isActive : true;
+  document.getElementById('categoryFormModal').classList.remove('hidden');
+}
+function closeCategoryForm() { document.getElementById('categoryFormModal').classList.add('hidden'); }
+function saveCategoryForm() {
+  const id = document.getElementById('cfmId').value;
+  const name = document.getElementById('cfmName').value.trim();
+  if (!name) { showToast('ক্যাটাগরির নাম দিন', 'error'); return; }
+  const data = { id, name, emoji: document.getElementById('cfmEmoji').value.trim() || '🛍️', sortOrder: Number(document.getElementById('cfmOrder').value) || 1, isActive: document.getElementById('cfmActive').checked };
+  showLoadingOverlay(true);
+  GAS.run(id ? 'updateCategory' : 'addCategory', [data], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      showToast(id ? 'আপডেট হয়েছে' : 'ক্যাটাগরি যোগ হয়েছে', 'success');
+      closeCategoryForm();
+      loadCategoryList();
+      GAS.run('getCategories', [], r => { if (r && r.success) { STATE.allCategories = r.data; rebuildCategoryUI(); } });
+    } else showToast(res && res.error ? res.error : 'ব্যর্থ', 'error');
+  });
+}
+function toggleCategoryActive(id, isActive) {
+  GAS.run('updateCategory', [{ id, isActive }], res => {
+    if (res && res.success) {
+      const c = STATE.allCategories.find(x => x.id === id);
+      if (c) { c.isActive = isActive; renderCategoryList(); rebuildCategoryUI(); }
+    }
+  });
+}
+function deleteCategoryItem(id, name) {
+  if (!confirm(`"${name}" মুছতে চান?`)) return;
+  showLoadingOverlay(true);
+  GAS.run('deleteCategory', [id], res => {
+    showLoadingOverlay(false);
+    if (res && res.success) {
+      showToast('মুছে গেছে', 'success');
+      loadCategoryList();
+      GAS.run('getCategories', [], r => { if (r && r.success) { STATE.allCategories = r.data; rebuildCategoryUI(); } });
+    }
+  });
+}
+
+// ★ ক্যাটাগরি বার + মোবাইল মেনু + prod filter আপডেট
+function rebuildCategoryUI() {
+  if (!STATE.allCategories.length) return;
+  const activeCats = STATE.allCategories.filter(c => c.isActive);
+  const catBar = document.getElementById('catBar');
+  if (catBar) {
+    catBar.innerHTML = `<div class="cat-item active" data-cat="all" onclick="selectCategory('all',this)"><span>🏪</span> সব পণ্য</div>` +
+      activeCats.map(c => `<div class="cat-item" data-cat="${c.name}" onclick="selectCategory('${c.name}',this)"><span>${c.emoji}</span> ${c.name}</div>`).join('');
+  }
+  const mobileList = document.getElementById('mobileCatList');
+  if (mobileList) {
+    mobileList.innerHTML = [{ name:'all', emoji:'🏪', label:'সব পণ্য' }]
+      .concat(activeCats.map(c => ({ name: c.name, emoji: c.emoji, label: c.name })))
+      .map(c => `<div class="mobile-cat-item" data-cat="${c.name}" onclick="selectCategoryMobile('${c.name}',this)"><span class="emoji">${c.emoji}</span>${c.label}</div>`)
+      .join('');
+  }
+  // ★ prod filter dropdown আপডেট
+  const prodCatFilter = document.getElementById('prodCatFilter');
+  if (prodCatFilter) {
+    prodCatFilter.innerHTML = `<option value="">সব ক্যাটাগরি</option>` +
+      activeCats.map(c => `<option value="${c.name}">${c.emoji} ${c.name}</option>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════
 //  UTILITIES
 // ═══════════════════════════════════════════════
 function statusBadge(s) {
-  const m = { Pending: 'badge-pending', Processing: 'badge-processing', Shipped: 'badge-shipped', Delivered: 'badge-delivered', Cancelled: 'badge-cancelled' };
-  const bn = { Pending: 'পেন্ডিং', Processing: 'প্রসেসিং', Shipped: 'শিপড', Delivered: 'ডেলিভার্ড', Cancelled: 'বাতিল' };
+  const m = { Pending:'badge-pending', Processing:'badge-processing', Shipped:'badge-shipped', Delivered:'badge-delivered', Cancelled:'badge-cancelled' };
+  const bn = { Pending:'পেন্ডিং', Processing:'প্রসেসিং', Shipped:'শিপড', Delivered:'ডেলিভার্ড', Cancelled:'বাতিল' };
   return `<span class="badge ${m[s] || 'badge-pending'}">${bn[s] || s}</span>`;
 }
-
 let _toastTimer;
 function showToast(msg, type = 'info') {
   clearTimeout(_toastTimer);
   const el = document.getElementById('toast');
-  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+  const icons = { success:'fa-check-circle', error:'fa-exclamation-triangle', info:'fa-info-circle' };
   el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>${msg}`;
   el.className = `toast ${type}`;
   el.classList.remove('hidden');
   _toastTimer = setTimeout(() => el.classList.add('hidden'), 3200);
 }
 
-// Modal overlay close handlers
+// ═══════════════════════════════════════════════
+//  DOM READY — modal close handlers + swipe
+// ═══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
   const pf = document.getElementById('productFormModal');
   if (pf) pf.addEventListener('click', e => { if (e.target === e.currentTarget) closeProductForm(); });
@@ -2804,7 +3079,8 @@ document.addEventListener('DOMContentLoaded', function() {
   if (cf) cf.addEventListener('click', e => { if (e.target === e.currentTarget) closeCourierForm(); });
   const al = document.getElementById('adminLoginPage');
   if (al) al.addEventListener('click', e => { if (e.target === e.currentTarget) hideAdminLogin(); });
-
+  const catFm = document.getElementById('categoryFormModal');
+  if (catFm) catFm.addEventListener('click', e => { if (e.target === e.currentTarget) closeCategoryForm(); });
   // Touch swipe for gallery
   const gallery = document.getElementById('modalGalleryWrap');
   if (gallery) {
